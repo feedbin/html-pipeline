@@ -42,6 +42,8 @@ module HTML
 
       # The camouflaged URL for a given image URL.
       def asset_proxy_url(url)
+        url = URI::encode(URI::decode(url))
+        url = hexencode(url)
         "#{asset_proxy_host}/#{asset_url_hash(url)}/#{hexencode(url)}"
       end
 
