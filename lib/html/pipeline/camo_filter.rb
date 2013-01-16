@@ -44,7 +44,7 @@ module HTML
       def asset_proxy_url(url)
         url = URI::encode(URI::decode(url))
         url = hexencode(url)
-        "#{asset_proxy_host}/#{asset_url_hash(url)}/#{hexencode(url)}"
+        "#{asset_proxy_host}/#{asset_url_hash(url)}/#{url}"
       end
 
       # Private: calculate the HMAC digest for a image source URL.
