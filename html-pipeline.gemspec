@@ -22,4 +22,6 @@ Gem::Specification.new do |gem|
   gem.add_dependency "rinku",           "~> 1.7"
   gem.add_dependency "escape_utils",    "~> 0.2"
   gem.add_dependency "activesupport",   ">= 2"
+
+  gem.add_development_dependency "github-linguist", "~> 2.1"
 end
