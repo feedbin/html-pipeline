@@ -28,6 +28,7 @@ module HTML
     autoload :Pipeline,              'html/pipeline/pipeline'
     autoload :Filter,                'html/pipeline/filter'
     autoload :BodyContent,           'html/pipeline/body_content'
+    autoload :AbsoluteHrefFilter,    'html/pipeline/absolute_href_filter'
     autoload :AutolinkFilter,        'html/pipeline/autolink_filter'
     autoload :CamoFilter,            'html/pipeline/camo_filter'
     autoload :EmailReplyFilter,      'html/pipeline/email_reply_filter'
