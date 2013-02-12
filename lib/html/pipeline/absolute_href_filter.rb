@@ -24,7 +24,11 @@ module HTML
             else
               base = href_subpage_url
             end
-            element["href"] = URI.join(base, href).to_s
+            begin
+              element["href"] = URI.join(base, href).to_s
+            rescue Exception => e
+              element["href"] = href
+            end
           end
         end
         doc
