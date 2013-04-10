@@ -2,7 +2,8 @@
 
 GitHub HTML processing filters and utilities. This module includes a small
 framework for defining DOM based content filters and applying them to user
-provided content.
+provided content. Read an introduction about this project in
+[this blog post](https://github.com/blog/1311-html-pipeline-chainable-content-filters).
 
 ## Installation
 
@@ -53,9 +54,7 @@ pipeline = HTML::Pipeline.new [
 result = pipeline.call <<-CODE
 This is *great*:
 
-``` ruby
-some_code(:first)
-```
+    some_code(:first)
 
 CODE
 result[:output].to_s
@@ -86,7 +85,7 @@ filter.call
 
 * `MentionFilter` - replace `@user` mentions with links
 * `AbsoluteSourceFilter` - replace relative image urls with fully qualified versions
-* `AutolinkFilter` - auto_linking urls in HTML
+* `AutoLinkFilter` - auto_linking urls in HTML
 * `CamoFilter` - replace http image urls with [camo-fied](https://github.com/atmos/camo) https versions
 * `EmailReplyFilter` - util filter for working with emails
 * `EmojiFilter` - everyone loves [emoji](http://www.emoji-cheat-sheet.com/)!
@@ -178,7 +177,7 @@ require 'uri'
 class RootRelativeFilter < HTML::Pipeline::Filter
 
   def call
-    doc.search("img").each do |img| 
+    doc.search("img").each do |img|
       next if img['src'].nil?
       src = img['src'].strip
       if src.start_with? '/'
@@ -197,6 +196,60 @@ Now this filter can be used in a pipeline:
 Pipeline.new [ RootRelativeFilter ], { :base_url => 'http://somehost.com' }
 ```
 
+## Instrumenting
+
+Filters and Pipelines can be set up to be instrumented when called. The pipeline
+must be setup with an [ActiveSupport::Notifications]
+(http://api.rubyonrails.org/classes/ActiveSupport/Notifications.html)
+compatible service object and a name. New pipeline objects will default to the
+`HTML::Pipeline.default_instrumentation_service` object.
+
+``` ruby
+# the AS::Notifications-compatible service object
+service = ActiveSupport::Notifications
+
+# instrument a specific pipeline
+pipeline = HTML::Pipeline.new [MarkdownFilter], context
+pipeline.setup_instrumentation "MarkdownPipeline", service
+
+# or set default instrumentation service for all new pipelines
+HTML::Pipeline.default_instrumentation_service = service
+pipeline = HTML::Pipeline.new [MarkdownFilter], context
+pipeline.setup_instrumentation "MarkdownPipeline"
+```
+
+Filters are instrumented when they are run through the pipeline. A
+`call_filter.html_pipeline` event is published once the filter finishes. The
+`payload` should include the `filter` name. Each filter will trigger its own
+instrumentation call.
+
+``` ruby
+service.subscribe "call_filter.html_pipeline" do |event, start, ending, transaction_id, payload|
+  payload[:pipeline] #=> "MarkdownPipeline", set with `setup_instrumentation`
+  payload[:filter] #=> "MarkdownFilter"
+  payload[:context] #=> context Hash
+  payload[:result] #=> instance of result class
+  payload[:result][:output] #=> output HTML String or Nokogiri::DocumentFragment
+end
+```
+
+The full pipeline is also instrumented:
+
+``` ruby
+service.subscribe "call_pipeline.html_pipeline" do |event, start, ending, transaction_id, payload|
+  payload[:pipeline] #=> "MarkdownPipeline", set with `setup_instrumentation`
+  payload[:filters] #=> ["MarkdownFilter"]
+  payload[:doc] #=> HTML String or Nokogiri::DocumentFragment
+  payload[:context] #=> context Hash
+  payload[:result] #=> instance of result class
+  payload[:result][:output] #=> output HTML String or Nokogiri::DocumentFragment
+end
+```
+
+## Documentation
+
+Full reference documentation can be [found here](http://rubydoc.info/gems/html-pipeline/frames).
+
 ## Development
 
 To see what has changed in recent versions, see the [CHANGELOG](https://github.com/jch/html-pipeline/blob/master/CHANGELOG.md).
@@ -214,21 +267,8 @@ rake test
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create new [Pull Request](https://help.github.com/articles/using-pull-requests)
 
-
-## TODO
-
-* test whether emoji filter works on heroku
-* test whether nokogiri monkey patch is still necessary
-
 ## Contributors
 
-* [Aman Gupta](mailto:aman@tmm1.net)
-* [Jake Boxer](mailto:jake@github.com)
-* [Joshua Peek](mailto:josh@joshpeek.com)
-* [Kyle Neath](mailto:kneath@gmail.com)
-* [Rob Sanheim](mailto:rsanheim@gmail.com)
-* [Simon Rozet](mailto:simon@rozet.name)
-* [Vicent Martí](mailto:tanoku@gmail.com)
-* [Risk :danger: Olson](mailto:technoweenie@gmail.com)
+Thanks to all of [these contributors](https://github.com/jch/html-pipeline/graphs/contributors).
 
 Project is a member of the [OSS Manifesto](http://ossmanifesto.org/).

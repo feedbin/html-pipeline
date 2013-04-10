@@ -25,7 +25,6 @@ module HTML
   #                   some semblance of type safety.
   class Pipeline
     autoload :VERSION,               'html/pipeline/version'
-    autoload :Pipeline,              'html/pipeline/pipeline'
     autoload :Filter,                'html/pipeline/filter'
     autoload :AbsoluteSourceFilter,  'html/pipeline/absolute_source_filter'
     autoload :BodyContent,           'html/pipeline/body_content'
@@ -62,11 +61,27 @@ module HTML
     # Public: Returns an Array of Filter objects for this Pipeline.
     attr_reader :filters
 
+    # Public: Instrumentation service for the pipeline.
+    # Set an ActiveSupport::Notifications compatible object to enable.
+    attr_accessor :instrumentation_service
+
+    # Public: String name for this Pipeline. Defaults to Class name.
+    attr_writer :instrumentation_name
+    def instrumentation_name
+      @instrumentation_name || self.class.name
+    end
+
+    class << self
+      # Public: Default instrumentation service for new pipeline objects.
+      attr_accessor :default_instrumentation_service
+    end
+
     def initialize(filters, default_context = {}, result_class = nil)
       raise ArgumentError, "default_context cannot be nil" if default_context.nil?
       @filters = filters.flatten.freeze
       @default_context = default_context.freeze
       @result_class = result_class || Hash
+      @instrumentation_service = self.class.default_instrumentation_service
     end
 
     # Apply all filters in the pipeline to the given HTML.
@@ -85,8 +100,28 @@ module HTML
       context = @default_context.merge(context)
       context = context.freeze
       result ||= @result_class.new
-      result[:output] = @filters.inject(html) { |doc, filter| filter.call(doc, context, result) }
+      payload = default_payload :filters => @filters.map(&:name),
+        :context => context, :result => result
+      instrument "call_pipeline.html_pipeline", payload do
+        result[:output] =
+          @filters.inject(html) do |doc, filter|
+            perform_filter(filter, doc, context, result)
+          end
+      end
       result
+    end
+
+    # Internal: Applies a specific filter to the supplied doc.
+    #
+    # The filter is instrumented.
+    #
+    # Returns the result of the filter.
+    def perform_filter(filter, doc, context, result)
+      payload = default_payload :filter => filter.name,
+        :context => context, :result => result
+      instrument "call_filter.html_pipeline", payload do
+        filter.call(doc, context, result)
+      end
     end
 
     # Like call but guarantee the value returned is a DocumentFragment.
@@ -107,26 +142,58 @@ module HTML
         output.to_s
       end
     end
+
+    # Public: setup instrumentation for this pipeline.
+    #
+    # Returns nothing.
+    def setup_instrumentation(name = nil, service = nil)
+      self.instrumentation_name = name
+      self.instrumentation_service =
+        service || self.class.default_instrumentation_service
+    end
+
+    # Internal: if the `instrumentation_service` object is set, instruments the
+    # block, otherwise the block is ran without instrumentation.
+    #
+    # Returns the result of the provided block.
+    def instrument(event, payload = nil)
+      payload ||= default_payload
+      return yield(payload) unless instrumentation_service
+      instrumentation_service.instrument event, payload do |payload|
+        yield payload
+      end
+    end
+
+    # Internal: Default payload for instrumentation.
+    #
+    # Accepts a Hash of additional payload data to be merged.
+    #
+    # Returns a Hash.
+    def default_payload(payload = {})
+      {:pipeline => instrumentation_name}.merge(payload)
+    end
   end
 end
 
-# XXX nokogiri monkey patches
-class Nokogiri::XML::Node
-  # Work around an issue with utf-8 encoded data being erroneously converted to
-  # ... some other shit when replacing text nodes. See 'utf-8 output 2' in
-  # user_content_test.rb for details.
-  def replace_with_encoding_fix(replacement)
-    if replacement.respond_to?(:to_str)
-      replacement = document.fragment("<div>#{replacement}</div>").children.first.children
+# XXX nokogiri monkey patches for 1.8
+if not ''.respond_to?(:force_encoding)
+  class Nokogiri::XML::Node
+    # Work around an issue with utf-8 encoded data being erroneously converted to
+    # ... some other shit when replacing text nodes. See 'utf-8 output 2' in
+    # user_content_test.rb for details.
+    def replace_with_encoding_fix(replacement)
+      if replacement.respond_to?(:to_str)
+        replacement = document.fragment("<div>#{replacement}</div>").children.first.children
+      end
+      replace_without_encoding_fix(replacement)
     end
-    replace_without_encoding_fix(replacement)
-  end
 
-  alias_method :replace_without_encoding_fix, :replace
-  alias_method :replace, :replace_with_encoding_fix
+    alias_method :replace_without_encoding_fix, :replace
+    alias_method :replace, :replace_with_encoding_fix
 
-  def swap(replacement)
-    replace(replacement)
-    self
+    def swap(replacement)
+      replace(replacement)
+      self
+    end
   end
 end
