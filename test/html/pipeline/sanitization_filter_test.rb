@@ -49,4 +49,9 @@ class HTML::Pipeline::SanitizationFilterTest < Test::Unit::TestCase
     orig = '<script>JavaScript!</script>'
     assert_equal "", SanitizationFilter.call(orig).to_s
   end
+
+  def test_style_contents_are_removed
+    orig = '<style>styles</style>'
+    assert_equal "", SanitizationFilter.call(orig).to_s
+  end
 end
