@@ -35,7 +35,7 @@ module HTML
           div ins del sup sub p ol ul table blockquote dl dt dd
           kbd q samp var hr ruby rt rp li tr td th
         ),
-        :remove_contents => ['script'],
+        :remove_contents => ['script', 'style'],
         :attributes => {
           'a' => ['href'],
           'img' => ['src'],
