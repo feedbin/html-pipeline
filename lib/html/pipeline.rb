@@ -38,6 +38,7 @@ module HTML
     autoload :MarkdownFilter,        'html/pipeline/markdown_filter'
     autoload :MentionFilter,         'html/pipeline/@mention_filter'
     autoload :PlainTextInputFilter,  'html/pipeline/plain_text_input_filter'
+    autoload :ProtocolFilter,        'html/pipeline/protocol_filter'
     autoload :SanitizationFilter,    'html/pipeline/sanitization_filter'
     autoload :SyntaxHighlightFilter, 'html/pipeline/syntax_highlight_filter'
     autoload :TextileFilter,         'html/pipeline/textile_filter'
