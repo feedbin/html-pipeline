@@ -85,7 +85,7 @@ filter.call
 
 * `MentionFilter` - replace `@user` mentions with links
 * `AbsoluteSourceFilter` - replace relative image urls with fully qualified versions
-* `AutoLinkFilter` - auto_linking urls in HTML
+* `AutolinkFilter` - auto_linking urls in HTML
 * `CamoFilter` - replace http image urls with [camo-fied](https://github.com/atmos/camo) https versions
 * `EmailReplyFilter` - util filter for working with emails
 * `EmojiFilter` - everyone loves [emoji](http://www.emoji-cheat-sheet.com/)!
@@ -96,19 +96,39 @@ filter.call
 * `SanitizationFilter` - whitelist sanitize user markup
 * `SyntaxHighlightFilter` - [code syntax highlighter](#syntax-highlighting)
 * `TextileFilter` - convert textile to html
-* `TableOfContentsFilter` - anchor headings with name attributes
+* `TableOfContentsFilter` - anchor headings with name attributes and generate Table of Contents html unordered list linking headings
 
-## Syntax highlighting
+## Dependencies
 
+Filter gem dependencies are not bundled; you must bundle the filter's gem
+dependencies. The below list details filters with dependencies. For example,
 `SyntaxHighlightFilter` uses [github-linguist](https://github.com/github/linguist)
-to detect and highlight languages. It isn't included as a dependency by default
-because it's a large dependency and
-[a hassle to build on heroku](https://github.com/jch/html-pipeline/issues/33).
-To use the filter, add the following to your Gemfile:
+to detect and highlight languages. For example, to use the `SyntaxHighlightFilter`,
+add the following to your Gemfile:
 
 ```ruby
 gem 'github-linguist'
 ```
+
+* `AutolinkFilter` - `rinku`
+* `EmailReplyFilter` - `escape_utils`
+* `EmojiFilter` - `gemoji`
+* `MarkdownFilter` - `github-markdown`
+* `PlainTextInputFilter` - `escape_utils`
+* `SanitizationFilter` - `sanitize`
+* `SyntaxHighlightFilter` - `github-linguist`
+* `TextileFilter` - `RedCloth`
+
+_Note:_ See [Gemfile](/Gemfile) `:test` block for version requirements.
+
+## 3rd Party Extensions
+
+If you have an idea for a filter, propose it as
+[an issue](https://github.com/jch/html-pipeline/issues) first. This allows us discuss
+whether the filter is a common enough use case to belong in this gem, or should be
+built as an external gem.
+
+* [html-pipeline-asciidoc_filter](https://github.com/asciidoctor/html-pipeline-asciidoc_filter) - asciidoc support
 
 ## Examples
 
@@ -127,7 +147,7 @@ context = {
 # related features.
 SimplePipeline = Pipeline.new [
   SanitizationFilter,
-  TableOfContentsFilter, # add 'name' anchors to all headers
+  TableOfContentsFilter, # add 'name' anchors to all headers and generate toc list
   CamoFilter,
   ImageMaxWidthFilter,
   SyntaxHighlightFilter,
@@ -160,7 +180,7 @@ HtmlEmailPipeline = Pipeline.new [
 
 # Just emoji.
 EmojiPipeline = Pipeline.new [
-  HTMLInputFilter,
+  PlainTextInputFilter,
   EmojiFilter
 ], context
 ```

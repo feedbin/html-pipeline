@@ -12,7 +12,7 @@ class HTML::Pipeline::AbsoluteSourceFilterTest < Test::Unit::TestCase
     }
   end
 
-  def test_rewrites_root_relative_urls
+  def test_rewrites_root_urls
     orig = %(<p><img src="/img.png"></p>)
     assert_equal "<p><img src=\"#{@image_base_url}/img.png\"></p>",
       AbsoluteSourceFilter.call(orig, @options).to_s
