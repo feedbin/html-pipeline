@@ -7,9 +7,13 @@ module HTML
       # This filter would need to be run before CamoFilter.
       def call
         doc.search("img").each do |element|
-          next if element['data-original'].nil? || element['data-original'].empty?
-          original_src = element['data-original'].strip
-          element["src"] = original_src
+          patterns = ['data-original', 'data-canonical-src']
+          patterns.each do |pattern|
+            if !element[pattern].nil? && !element[pattern].empty?
+              original_src = element[pattern].strip
+              element["src"] = original_src
+            end
+          end
         end
         doc
       end
