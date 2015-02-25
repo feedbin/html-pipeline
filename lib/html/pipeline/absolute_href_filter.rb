@@ -15,7 +15,7 @@ module HTML
       #
       # This filter does not write additional information to the context.
       def call
-        doc.search("a").each do |element| 
+        doc.search("a").each do |element|
           next if element['href'].nil? || element['href'].empty?
           href = element['href'].strip
           unless href.start_with? 'http'
@@ -33,22 +33,17 @@ module HTML
         end
         doc
       end
-      
-      # Implementation of validate hook.
-      def validate
-        needs :href_base_url, :href_subpage_url
-      end
-      
+
       # Private: the base url you want to use
       def href_base_url
-        context[:href_base_url]
+        context[:href_base_url] or raise "Missing context :href_base_url for #{self.class.name}"
       end
 
       # Private: the relative url you want to use
       def href_subpage_url
-        context[:href_subpage_url]
+        context[:href_subpage_url] or raise "Missing context :href_subpage_url for #{self.class.name}"
       end
-    
+
     end
   end
 end

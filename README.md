@@ -1,9 +1,22 @@
-# HTML::Pipeline [![Build Status](https://secure.travis-ci.org/jch/html-pipeline.png)](http://travis-ci.org/jch/html-pipeline)
+# HTML::Pipeline [![Build Status](https://travis-ci.org/jch/html-pipeline.svg?branch=master)](https://travis-ci.org/jch/html-pipeline)
 
 GitHub HTML processing filters and utilities. This module includes a small
 framework for defining DOM based content filters and applying them to user
 provided content. Read an introduction about this project in
 [this blog post](https://github.com/blog/1311-html-pipeline-chainable-content-filters).
+
+- [Installation](#installation)
+- [Usage](#usage)
+  - [Examples](#examples)
+- [Filters](#filters)
+- [Dependencies](#dependencies)
+- [Documentation](#documentation)
+- [Extending](#extending)
+  - [3rd Party Extensions](#3rd-party-extensions)
+- [Instrumenting](#instrumenting)
+- [Contributing](#contributing)
+  - [Contributors](#contributors)
+  - [Releasing A New Version](#releasing-a-new-version)
 
 ## Installation
 
@@ -71,66 +84,19 @@ Prints:
 </div>
 ```
 
+To generate CSS for HTML formatted code, use the [pygments.rb](https://github.com/tmm1/pygments.rb#usage) `#css` method. `pygments.rb` is a dependency of the `SyntaxHighlightFilter`.
+
 Some filters take an optional **context** and/or **result** hash. These are
 used to pass around arguments and metadata between filters in a pipeline. For
-example, if you want don't want to use GitHub formatted Markdown, you can
-pass an option in the context hash:
+example, if you don't want to use GitHub formatted Markdown, you can pass an
+option in the context hash:
 
 ```ruby
 filter = HTML::Pipeline::MarkdownFilter.new("Hi **world**!", :gfm => false)
 filter.call
 ```
 
-## Filters
-
-* `MentionFilter` - replace `@user` mentions with links
-* `AbsoluteSourceFilter` - replace relative image urls with fully qualified versions
-* `AutolinkFilter` - auto_linking urls in HTML
-* `CamoFilter` - replace http image urls with [camo-fied](https://github.com/atmos/camo) https versions
-* `EmailReplyFilter` - util filter for working with emails
-* `EmojiFilter` - everyone loves [emoji](http://www.emoji-cheat-sheet.com/)!
-* `HttpsFilter` - HTML Filter for replacing http github urls with https versions.
-* `ImageMaxWidthFilter` - link to full size image for large images
-* `MarkdownFilter` - convert markdown to html
-* `PlainTextInputFilter` - html escape text and wrap the result in a div
-* `SanitizationFilter` - whitelist sanitize user markup
-* `SyntaxHighlightFilter` - [code syntax highlighter](#syntax-highlighting)
-* `TextileFilter` - convert textile to html
-* `TableOfContentsFilter` - anchor headings with name attributes and generate Table of Contents html unordered list linking headings
-
-## Dependencies
-
-Filter gem dependencies are not bundled; you must bundle the filter's gem
-dependencies. The below list details filters with dependencies. For example,
-`SyntaxHighlightFilter` uses [github-linguist](https://github.com/github/linguist)
-to detect and highlight languages. For example, to use the `SyntaxHighlightFilter`,
-add the following to your Gemfile:
-
-```ruby
-gem 'github-linguist'
-```
-
-* `AutolinkFilter` - `rinku`
-* `EmailReplyFilter` - `escape_utils`
-* `EmojiFilter` - `gemoji`
-* `MarkdownFilter` - `github-markdown`
-* `PlainTextInputFilter` - `escape_utils`
-* `SanitizationFilter` - `sanitize`
-* `SyntaxHighlightFilter` - `github-linguist`
-* `TextileFilter` - `RedCloth`
-
-_Note:_ See [Gemfile](/Gemfile) `:test` block for version requirements.
-
-## 3rd Party Extensions
-
-If you have an idea for a filter, propose it as
-[an issue](https://github.com/jch/html-pipeline/issues) first. This allows us discuss
-whether the filter is a common enough use case to belong in this gem, or should be
-built as an external gem.
-
-* [html-pipeline-asciidoc_filter](https://github.com/asciidoctor/html-pipeline-asciidoc_filter) - asciidoc support
-
-## Examples
+### Examples
 
 We define different pipelines for different parts of our app. Here are a few
 paraphrased snippets to get you started:
@@ -175,6 +141,7 @@ NonGFMMarkdownPipeline = Pipeline.new(MarkdownPipeline.filters,
 # Pipelines aren't limited to the web. You can use them for email
 # processing also.
 HtmlEmailPipeline = Pipeline.new [
+  PlainTextInputFilter,
   ImageMaxWidthFilter
 ], {}
 
@@ -184,6 +151,50 @@ EmojiPipeline = Pipeline.new [
   EmojiFilter
 ], context
 ```
+
+## Filters
+
+* `MentionFilter` - replace `@user` mentions with links
+* `AbsoluteSourceFilter` - replace relative image urls with fully qualified versions
+* `AutolinkFilter` - auto_linking urls in HTML
+* `CamoFilter` - replace http image urls with [camo-fied](https://github.com/atmos/camo) https versions
+* `EmailReplyFilter` - util filter for working with emails
+* `EmojiFilter` - everyone loves [emoji](http://www.emoji-cheat-sheet.com/)!
+* `HttpsFilter` - HTML Filter for replacing http github urls with https versions.
+* `ImageMaxWidthFilter` - link to full size image for large images
+* `MarkdownFilter` - convert markdown to html
+* `PlainTextInputFilter` - html escape text and wrap the result in a div
+* `SanitizationFilter` - whitelist sanitize user markup
+* `SyntaxHighlightFilter` - [code syntax highlighter](#syntax-highlighting)
+* `TextileFilter` - convert textile to html
+* `TableOfContentsFilter` - anchor headings with name attributes and generate Table of Contents html unordered list linking headings
+
+## Dependencies
+
+Filter gem dependencies are not bundled; you must bundle the filter's gem
+dependencies. The below list details filters with dependencies. For example,
+`SyntaxHighlightFilter` uses [github-linguist](https://github.com/github/linguist)
+to detect and highlight languages. For example, to use the `SyntaxHighlightFilter`,
+add the following to your Gemfile:
+
+```ruby
+gem 'github-linguist'
+```
+
+* `AutolinkFilter` - `rinku`
+* `EmailReplyFilter` - `escape_utils`, `email_reply_parser`
+* `EmojiFilter` - `gemoji`
+* `MarkdownFilter` - `github-markdown`
+* `PlainTextInputFilter` - `escape_utils`
+* `SanitizationFilter` - `sanitize`
+* `SyntaxHighlightFilter` - `github-linguist`
+* `TextileFilter` - `RedCloth`
+
+_Note:_ See [Gemfile](/Gemfile) `:test` block for version requirements.
+
+## Documentation
+
+Full reference documentation can be [found here](http://rubydoc.info/gems/html-pipeline/frames).
 
 ## Extending
 To write a custom filter, you need a class with a `call` method that inherits
@@ -215,6 +226,25 @@ Now this filter can be used in a pipeline:
 ```ruby
 Pipeline.new [ RootRelativeFilter ], { :base_url => 'http://somehost.com' }
 ```
+
+### 3rd Party Extensions
+
+If you have an idea for a filter, propose it as
+[an issue](https://github.com/jch/html-pipeline/issues) first. This allows us discuss
+whether the filter is a common enough use case to belong in this gem, or should be
+built as an external gem.
+
+Here are some extensions people have built:
+
+* [html-pipeline-asciidoc_filter](https://github.com/asciidoctor/html-pipeline-asciidoc_filter)
+* [jekyll-html-pipeline](https://github.com/gjtorikian/jekyll-html-pipeline)
+* [nanoc-html-pipeline](https://github.com/burnto/nanoc-html-pipeline)
+* [html-pipeline-bity](https://github.com/dewski/html-pipeline-bitly)
+* [html-pipeline-cite](https://github.com/lifted-studios/html-pipeline-cite)
+* [tilt-html-pipeline](https://github.com/bradgessler/tilt-html-pipeline)
+* [html-pipeline-wiki-link'](https://github.com/lifted-studios/html-pipeline-wiki-link) - WikiMedia-style wiki links
+* [task_list](https://github.com/github/task_list) - GitHub flavor Markdown Task List
+* [html-pipeline-rouge_filter](https://github.com/JuanitoFatas/html-pipeline-rouge_filter) - Syntax highlight with [Rouge](https://github.com/jneen/rouge/)
 
 ## Instrumenting
 
@@ -266,20 +296,39 @@ service.subscribe "call_pipeline.html_pipeline" do |event, start, ending, transa
 end
 ```
 
-## Documentation
+## FAQ
 
-Full reference documentation can be [found here](http://rubydoc.info/gems/html-pipeline/frames).
+### 1. Why doesn't my pipeline work when there's no root element in the document?
 
-## Development
+To make a pipeline work on a plain text document, put the `PlainTextInputFilter`
+at the beginning of your pipeline. This will wrap the content in a `div` so the
+filters have a root element to work with. If you're passing in an HTML fragment,
+but it doesn't have a root element, you can wrap the content in a `div`
+yourself. For example:
 
-To see what has changed in recent versions, see the [CHANGELOG](https://github.com/jch/html-pipeline/blob/master/CHANGELOG.md).
+```ruby
+EmojiPipeline = Pipeline.new [
+  PlainTextInputFilter,  # <- Wraps input in a div and escapes html tags
+  EmojiFilter
+], context
 
-```sh
-bundle
-rake test
+plain_text = "Gutentag! :wave:"
+EmojiPipeline.call(plain_text)
+
+html_fragment = "This is outside of an html element, but <strong>this isn't. :+1:</strong>"
+EmojiPipeline.call("<div>#{html_fragment}</div>") # <- Wrap your own html fragments to avoid escaping
 ```
 
+### 2. How do I customize a whitelist for `SanitizationFilter`s?
+
+`SanitizationFilter::WHITELIST` is the default whitelist used if no `:whitelist`
+argument is given in the context. The default is a good starting template for
+you to add additional elements. You can either modify the constant's value, or
+re-define your own constant and pass that in via the context.
+
 ## Contributing
+
+Please review the [Contributing Guide](https://github.com/jch/html-pipeline/blob/master/CONTRIBUTING.md).
 
 1. [Fork it](https://help.github.com/articles/fork-a-repo)
 2. Create your feature branch (`git checkout -b my-new-feature`)
@@ -287,8 +336,18 @@ rake test
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create new [Pull Request](https://help.github.com/articles/using-pull-requests)
 
-## Contributors
+To see what has changed in recent versions, see the [CHANGELOG](https://github.com/jch/html-pipeline/blob/master/CHANGELOG.md).
+
+### Contributors
 
 Thanks to all of [these contributors](https://github.com/jch/html-pipeline/graphs/contributors).
 
 Project is a member of the [OSS Manifesto](http://ossmanifesto.org/).
+
+### Releasing A New Version
+
+This section is for gem maintainers to cut a new version of the gem.
+
+* update lib/html/pipeline/version.rb to next version number X.X.X following [semver](http://semver.org).
+* update CHANGELOG.md. Get latest changes with `git log --oneline vLAST_RELEASE..HEAD | grep Merge`
+* on the master branch, run `script/release`

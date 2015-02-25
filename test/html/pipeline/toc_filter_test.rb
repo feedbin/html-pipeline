@@ -1,7 +1,7 @@
 # encoding: utf-8
 require "test_helper"
 
-class HTML::Pipeline::TableOfContentsFilterTest < Test::Unit::TestCase
+class HTML::Pipeline::TableOfContentsFilterTest < Minitest::Test
   TocFilter = HTML::Pipeline::TableOfContentsFilter
 
   TocPipeline =
@@ -17,30 +17,36 @@ class HTML::Pipeline::TableOfContentsFilterTest < Test::Unit::TestCase
 
   def test_anchors_are_added_properly
     orig = %(<h1>Ice cube</h1><p>Will swarm on any motherfucker in a blue uniform</p>)
-    assert_includes '<a name=', TocFilter.call(orig).to_s
+    assert_includes TocFilter.call(orig).to_s, '<a id='
   end
 
   def test_toc_list_added_properly
     @orig = %(<h1>Ice cube</h1><p>Will swarm on any motherfucker in a blue uniform</p>)
-    assert_includes %Q{<ul class="section-nav">\n<li><a href="}, toc
+    assert_includes toc, %Q{<ul class="section-nav">\n<li><a href="}
   end
 
   def test_anchors_have_sane_names
     orig = %(<h1>Dr Dre</h1><h1>Ice Cube</h1><h1>Eazy-E</h1><h1>MC Ren</h1>)
     result = TocFilter.call(orig).to_s
 
-    assert_includes '"dr-dre"', result
-    assert_includes '"ice-cube"', result
-    assert_includes '"eazy-e"', result
-    assert_includes '"mc-ren"', result
+    assert_includes result, '"dr-dre"'
+    assert_includes result, '"ice-cube"'
+    assert_includes result, '"eazy-e"'
+    assert_includes result, '"mc-ren"'
+  end
+
+  def test_anchors_have_aria_hidden
+    orig = "<h1>Straight Outta Compton</h1>"
+    result = TocFilter.call(orig).to_s
+    assert_includes result, 'aria-hidden="true"'
   end
 
   def test_toc_hrefs_have_sane_values
     @orig = %(<h1>Dr Dre</h1><h1>Ice Cube</h1><h1>Eazy-E</h1><h1>MC Ren</h1>)
-    assert_includes '"#dr-dre"', toc
-    assert_includes '"#ice-cube"', toc
-    assert_includes '"#eazy-e"', toc
-    assert_includes '"#mc-ren"', toc
+    assert_includes toc, '"#dr-dre"'
+    assert_includes toc, '"#ice-cube"'
+    assert_includes toc, '"#eazy-e"'
+    assert_includes toc, '"#mc-ren"'
   end
 
   def test_dupe_headers_have_unique_trailing_identifiers
@@ -51,8 +57,8 @@ class HTML::Pipeline::TableOfContentsFilterTest < Test::Unit::TestCase
 
     result = TocFilter.call(orig).to_s
 
-    assert_includes '"dopeman"', result
-    assert_includes '"dopeman-1"', result
+    assert_includes result, '"dopeman"'
+    assert_includes result, '"dopeman-1"'
   end
 
   def test_dupe_headers_have_unique_toc_anchors
@@ -61,8 +67,8 @@ class HTML::Pipeline::TableOfContentsFilterTest < Test::Unit::TestCase
               <h3>Express Yourself</h3>
               <h1>Dopeman</h1>)
 
-    assert_includes '"#dopeman"', toc
-    assert_includes '"#dopeman-1"', toc
+    assert_includes toc, '"#dopeman"'
+    assert_includes toc, '"#dopeman-1"'
   end
 
   def test_all_header_tags_are_found_when_adding_anchors
@@ -101,9 +107,9 @@ class HTML::Pipeline::TableOfContentsFilterTest < Test::Unit::TestCase
 
       rendered_h1s = TocFilter.call(orig).search('h1').map(&:to_s)
 
-      assert_equal "<h1>\n<a name=\"%E6%97%A5%E6%9C%AC%E8%AA%9E\" class=\"anchor\" href=\"#%E6%97%A5%E6%9C%AC%E8%AA%9E\"><span class=\"octicon octicon-link\"></span></a>日本語</h1>",
+      assert_equal "<h1>\n<a id=\"日本語\" class=\"anchor\" href=\"#%E6%97%A5%E6%9C%AC%E8%AA%9E\" aria-hidden=\"true\"><span class=\"octicon octicon-link\"></span></a>日本語</h1>",
                    rendered_h1s[0]
-      assert_equal "<h1>\n<a name=\"%D0%A0%D1%83%D1%81%D1%81%D0%BA%D0%B8%D0%B9\" class=\"anchor\" href=\"#%D0%A0%D1%83%D1%81%D1%81%D0%BA%D0%B8%D0%B9\"><span class=\"octicon octicon-link\"></span></a>Русский</h1>",
+      assert_equal "<h1>\n<a id=\"Русский\" class=\"anchor\" href=\"#%D0%A0%D1%83%D1%81%D1%81%D0%BA%D0%B8%D0%B9\" aria-hidden=\"true\"><span class=\"octicon octicon-link\"></span></a>Русский</h1>",
                    rendered_h1s[1]
     end
 

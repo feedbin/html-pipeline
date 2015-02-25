@@ -1,8 +1,8 @@
 require "test_helper"
 
-class HTML::Pipeline::MentionFilterTest < Test::Unit::TestCase
-  def filter(html, base_url='/', info_url=nil)
-    HTML::Pipeline::MentionFilter.call(html, :base_url => base_url, :info_url => info_url)
+class HTML::Pipeline::MentionFilterTest < Minitest::Test
+  def filter(html, base_url='/', info_url=nil, username_pattern=nil)
+    HTML::Pipeline::MentionFilter.call(html, :base_url => base_url, :info_url => info_url, :username_pattern => username_pattern)
   end
 
   def test_filtering_a_documentfragment
@@ -36,6 +36,11 @@ class HTML::Pipeline::MentionFilterTest < Test::Unit::TestCase
     assert_equal body, filter(body).to_html
   end
 
+  def test_not_replacing_mentions_in_style_tags
+    body = "<style>@media (min-width: 768px) { color: red; }</style>"
+    assert_equal body, filter(body).to_html
+  end
+
   def test_not_replacing_mentions_in_links
     body = "<p><a>@kneath</a> okay</p>"
     assert_equal body, filter(body).to_html
@@ -65,6 +70,27 @@ class HTML::Pipeline::MentionFilterTest < Test::Unit::TestCase
     link = "<a href=\"https://github.com/blog/821\" class=\"user-mention\">@mention</a>"
     assert_equal "<p>How do I #{link} someone?</p>",
       filter(body, '/', 'https://github.com/blog/821').to_html
+  end
+
+  def test_base_url_slash
+    body = "<p>Hi, @jch!</p>"
+    link = "<a href=\"/jch\" class=\"user-mention\">@jch</a>"
+    assert_equal "<p>Hi, #{link}!</p>",
+      filter(body, '/').to_html
+  end
+
+  def test_base_url_under_custom_route
+    body = "<p>Hi, @jch!</p>"
+    link = "<a href=\"/userprofile/jch\" class=\"user-mention\">@jch</a>"
+    assert_equal "<p>Hi, #{link}!</p>",
+      filter(body, '/userprofile').to_html
+  end
+
+  def test_base_url_slash_with_tilde
+    body = "<p>Hi, @jch!</p>"
+    link = "<a href=\"/~jch\" class=\"user-mention\">@jch</a>"
+    assert_equal "<p>Hi, #{link}!</p>",
+      filter(body, '/~').to_html
   end
 
   MarkdownPipeline =
@@ -152,5 +178,29 @@ class HTML::Pipeline::MentionFilterTest < Test::Unit::TestCase
   def test_mention_at_end_of_parenthetical_sentence
     @body = "(We're talking 'bout @ymendel.)"
     assert_equal %w[ymendel], mentioned_usernames
+  end
+
+  def test_username_pattern_can_be_customized
+    body = "<p>@_abc: test.</p>"
+    doc  = Nokogiri::HTML::DocumentFragment.parse(body)
+
+    res  = filter(doc, '/', nil, /(_[a-z]{3})/)
+
+    link = "<a href=\"/_abc\" class=\"user-mention\">@_abc</a>"
+    assert_equal "<p>#{link}: test.</p>",
+      res.to_html
+  end
+
+  def test_filter_does_not_create_a_new_object_for_default_username_pattern
+    body = "<div>@test</div>"
+    doc = Nokogiri::HTML::DocumentFragment.parse(body)
+
+    filter(doc.clone, '/', nil)
+    pattern_count = HTML::Pipeline::MentionFilter::MentionPatterns.length
+    filter(doc.clone, '/', nil)
+
+    assert_equal pattern_count, HTML::Pipeline::MentionFilter::MentionPatterns.length
+    filter(doc.clone, '/', nil, /test/)
+    assert_equal pattern_count + 1, HTML::Pipeline::MentionFilter::MentionPatterns.length
   end
 end

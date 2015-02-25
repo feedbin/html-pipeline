@@ -15,9 +15,13 @@ module HTML
     # https://github.com/rgrove/sanitize/#readme
     #
     # Context options:
-    #   :whitelist - The sanitizer whitelist configuration to use. This can be one
-    #                of the options constants defined in this class or a custom
-    #                sanitize options hash.
+    #   :whitelist      - The sanitizer whitelist configuration to use. This
+    #                     can be one of the options constants defined in this
+    #                     class or a custom sanitize options hash.
+    #   :anchor_schemes - The URL schemes to allow in <a href> attributes. The
+    #                     default set is provided in the ANCHOR_SCHEMES
+    #                     constant in this class. If passed, this overrides any
+    #                     schemes specified in the whitelist configuration.
     #
     # This filter does not write additional information to the context.
     class SanitizationFilter < Filter
@@ -32,13 +36,16 @@ module HTML
       TABLE = 'table'.freeze
       TABLE_SECTIONS = Set.new(%w(thead tbody tfoot).freeze)
 
+      # These schemes are the only ones allowed in <a href> attributes by default.
+      ANCHOR_SCHEMES = ['http', 'https', 'mailto', :relative, 'github-windows', 'github-mac'].freeze
+
       # The main sanitization whitelist. Only these elements and attributes are
       # allowed through by default.
       WHITELIST = {
         :elements => %w(
           h1 h2 h3 h4 h5 h6 h7 h8 br b i strong em a pre code img tt
           div ins del sup sub p ol ul table thead tbody tfoot blockquote
-          dl dt dd kbd q samp var hr ruby rt rp li tr td th
+          dl dt dd kbd q samp var hr ruby rt rp li tr td th s strike summary details
         ),
         :remove_contents => ['script', 'style'],
         :attributes => {
@@ -56,7 +63,7 @@ module HTML
                     'hspace', 'ismap', 'label', 'lang',
                     'longdesc', 'maxlength', 'media', 'method',
                     'multiple', 'name', 'nohref', 'noshade',
-                    'nowrap', 'prompt', 'readonly', 'rel', 'rev',
+                    'nowrap', 'open', 'prompt', 'readonly', 'rel', 'rev',
                     'rows', 'rowspan', 'rules', 'scope',
                     'selected', 'shape', 'size', 'span',
                     'start', 'summary', 'tabindex', 'target',
@@ -64,7 +71,7 @@ module HTML
                     'vspace', 'width', 'itemprop']
         },
         :protocols => {
-          'a'   => {'href' => ['http', 'https', 'mailto', :relative, 'github-windows', 'github-mac']},
+          'a'   => {'href' => ANCHOR_SCHEMES},
           'img' => {'src'  => ['http', 'https', :relative]}
         },
         :transformers => [
@@ -104,7 +111,13 @@ module HTML
       # The whitelist to use when sanitizing. This can be passed in the context
       # hash to the filter but defaults to WHITELIST constant value above.
       def whitelist
-        context[:whitelist] || WHITELIST
+        whitelist = context[:whitelist] || WHITELIST
+        anchor_schemes = context[:anchor_schemes]
+        return whitelist unless anchor_schemes
+        whitelist = whitelist.dup
+        whitelist[:protocols] = (whitelist[:protocols] || {}).dup
+        whitelist[:protocols]['a'] = (whitelist[:protocols]['a'] || {}).merge('href' => anchor_schemes)
+        whitelist
       end
     end
   end

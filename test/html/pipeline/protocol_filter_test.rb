@@ -1,6 +1,6 @@
 require "test_helper"
 
-class HTML::Pipeline::ProtocolFilterTest < Test::Unit::TestCase
+class HTML::Pipeline::ProtocolFilterTest < Minitest::Test
   ProtocolFilter = HTML::Pipeline::ProtocolFilter
 
   def test_rewrites_protocol_relative_sources

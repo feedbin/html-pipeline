@@ -27,6 +27,16 @@ module HTML
         doc.search("img").each do |element|
           original_src = element['src']
           next unless original_src
+
+          begin
+            uri = URI.parse(original_src)
+          rescue Exception
+            next
+          end
+
+          next if uri.host.nil?
+          next if asset_host_whitelisted?(uri.host)
+
           element['src'] = asset_proxy_url(original_src)
           element['data-canonical-src'] = original_src
         end

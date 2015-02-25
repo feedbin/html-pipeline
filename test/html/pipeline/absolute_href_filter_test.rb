@@ -1,6 +1,6 @@
 require "test_helper"
 
-class HTML::Pipeline::AbsoluteHrefFilterTest < Test::Unit::TestCase
+class HTML::Pipeline::AbsoluteHrefFilterTest < Minitest::Test
   AbsoluteHrefFilter = HTML::Pipeline::AbsoluteHrefFilter
 
   def setup
@@ -27,15 +27,8 @@ class HTML::Pipeline::AbsoluteHrefFilterTest < Test::Unit::TestCase
   def test_does_not_rewrite_absolute_urls
     orig = %(<p><a href="http://other.example.com/link">Link</a></p>)
     result = AbsoluteHrefFilter.call(orig, @options).to_s
-    assert_no_match /@href_base_url/, result
-    assert_no_match /@href_subpage_url/, result
+    refute_match /@href_base_url/, result
+    refute_match /@href_subpage_url/, result
   end
-  
-  def test_required_context_validation
-    exception = assert_raise(ArgumentError) { 
-      AbsoluteHrefFilter.call("", {}) 
-    }
-    assert_match /:href_base_url/, exception.message
-    assert_match /:href_subpage_url/, exception.message
-  end
+
 end

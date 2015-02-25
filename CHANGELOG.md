@@ -1,5 +1,56 @@
 # CHANGELOG
 
+## 1.11.0
+
+  * Search for text nodes on DocumentFragments without root tags #146 Razer6
+  * Don't filter @mentions in `<style>` tags #145 jch
+  * Prefer `http_url` in HttpsFilter. `base_url` still works. #142 bkeepers
+  * Remove duplicate check in EmojiFilter #141 Razer6
+
+## 1.10.0
+
+  * Anchor TOCFilter with id's instead of name's #140 bkeepers
+  * Add `details` to sanitization whitelist #139 tansaku
+  * Fix README spelling #137 Razer6
+  * Remove ActiveSupport `try` dependency #132 simeonwillbanks
+
+## 1.9.0
+
+  * Generalize https filter with :base_url #124 #131 rymohr
+  * Clean up gemspec dependencies #130 mislav
+  * EmojiFilter compatibility with gemoji v2 #129 mislav
+  * Now using Minitest #126 simeonwillbanks
+
+## 1.8.0
+
+  * Add custom path support for EmojiFilter #122 bradly
+  * Reorganize README and add table of contents #118 simeonwillbanks
+
+## 1.7.0
+
+  * SanitizationFilter whitelists <s> and <strike> elements #120 charliesome
+  * ruby 2.1.1 support #119 simeonwillbanks
+
+## 1.6.0
+
+  * Doc update for syntax highlighting #108 simeonwillbanks
+  * Add missing dependency for EmailReplyFilter #110 foca
+  * Fix deprecation warning for Digest::Digest #103 chrishunt
+
+## 1.5.0
+
+  * More flexible whitelist configuration for SanitizationFilter #98 aroben
+
+## 1.4.0
+
+  * Fix CamoFilter double entity encoding. #101 josh
+
+## 1.3.0
+
+1.2.0 didn't actually include the following changes. Yanked that release.
+
+  * CamoFilter now camos https images. #96 josh
+
 ## 1.1.0
 
   * escape emoji filenames in urls #92 jayroh
