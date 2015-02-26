@@ -19,4 +19,10 @@ class HTML::Pipeline::LazyLoadFilterTest < Minitest::Test
       LazyLoadFilter.call(orig).to_s
   end
 
+  def test_data_src
+    orig = %(<img src="/img.png" data-src="#{@original_source}">)
+    assert_equal %(<img src="#{@original_source}" data-src="#{@original_source}">),
+      LazyLoadFilter.call(orig).to_s
+  end
+
 end
