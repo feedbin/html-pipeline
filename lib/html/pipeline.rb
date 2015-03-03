@@ -30,6 +30,7 @@ module HTML
     autoload :AbsoluteHrefFilter,     'html/pipeline/absolute_href_filter'
     autoload :AutolinkFilter,         'html/pipeline/autolink_filter'
     autoload :CamoFilter,             'html/pipeline/camo_filter'
+    autoload :CanonicalSourceFilter,  'html/pipeline/canonical_source_filter'
     autoload :EmailReplyFilter,       'html/pipeline/email_reply_filter'
     autoload :EmojiFilter,            'html/pipeline/emoji_filter'
     autoload :HttpsFilter,            'html/pipeline/https_filter'
