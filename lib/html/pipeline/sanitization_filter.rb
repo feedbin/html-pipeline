@@ -1,7 +1,7 @@
 begin
   require "sanitize"
 rescue LoadError => _
-  abort "Missing dependency 'sanitize' for SanitizationFilter. See README.md for details."
+  raise HTML::Pipeline::MissingDependencyError, "Missing dependency 'sanitize' for SanitizationFilter. See README.md for details."
 end
 
 module HTML
@@ -49,30 +49,41 @@ module HTML
         ),
         :remove_contents => ['script', 'style'],
         :attributes => {
-          'a' => ['href'],
-          'img' => ['src'],
-          'div' => ['itemscope', 'itemtype'],
-          :all  => ['abbr', 'accept', 'accept-charset',
-                    'accesskey', 'action', 'align', 'alt', 'axis',
-                    'border', 'cellpadding', 'cellspacing', 'char',
-                    'charoff', 'charset', 'checked', 'cite',
-                    'clear', 'cols', 'colspan', 'color',
-                    'compact', 'coords', 'datetime', 'dir',
-                    'disabled', 'enctype', 'for', 'frame',
-                    'headers', 'height', 'hreflang',
-                    'hspace', 'ismap', 'label', 'lang',
-                    'longdesc', 'maxlength', 'media', 'method',
-                    'multiple', 'name', 'nohref', 'noshade',
-                    'nowrap', 'open', 'prompt', 'readonly', 'rel', 'rev',
-                    'rows', 'rowspan', 'rules', 'scope',
-                    'selected', 'shape', 'size', 'span',
-                    'start', 'summary', 'tabindex', 'target',
-                    'title', 'type', 'usemap', 'valign', 'value',
-                    'vspace', 'width', 'itemprop']
+          'a'          => ['href'],
+          'img'        => ['src', 'longdesc'],
+          'div'        => ['itemscope', 'itemtype'],
+          'blockquote' => ['cite'],
+          'del'        => ['cite'],
+          'ins'        => ['cite'],
+          'q'          => ['cite'],
+          :all         => ['abbr', 'accept', 'accept-charset',
+                           'accesskey', 'action', 'align', 'alt', 'axis',
+                           'border', 'cellpadding', 'cellspacing', 'char',
+                           'charoff', 'charset', 'checked',
+                           'clear', 'cols', 'colspan', 'color',
+                           'compact', 'coords', 'datetime', 'dir',
+                           'disabled', 'enctype', 'for', 'frame',
+                           'headers', 'height', 'hreflang',
+                           'hspace', 'ismap', 'label', 'lang',
+                           'maxlength', 'media', 'method',
+                           'multiple', 'name', 'nohref', 'noshade',
+                           'nowrap', 'open', 'prompt', 'readonly', 'rel', 'rev',
+                           'rows', 'rowspan', 'rules', 'scope',
+                           'selected', 'shape', 'size', 'span',
+                           'start', 'summary', 'tabindex', 'target',
+                           'title', 'type', 'usemap', 'valign', 'value',
+                           'vspace', 'width', 'itemprop']
         },
         :protocols => {
-          'a'   => {'href' => ANCHOR_SCHEMES},
-          'img' => {'src'  => ['http', 'https', :relative]}
+          'a'          => {'href' => ANCHOR_SCHEMES},
+          'blockquote' => {'cite' => ['http', 'https', :relative]},
+          'del'        => {'cite' => ['http', 'https', :relative]},
+          'ins'        => {'cite' => ['http', 'https', :relative]},
+          'q'          => {'cite' => ['http', 'https', :relative]},
+          'img'        => {
+            'src'      => ['http', 'https', :relative],
+            'longdesc' => ['http', 'https', :relative]
+          }
         },
         :transformers => [
           # Top-level <li> elements are removed because they can break out of

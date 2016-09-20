@@ -78,10 +78,8 @@ Prints:
 ```html
 <p>This is <em>great</em>:</p>
 
-<div class="highlight">
-<pre><span class="n">some_code</span><span class="p">(</span><span class="ss">:first</span><span class="p">)</span>
-</pre>
-</div>
+<pre><code>some_code(:first)
+</code></pre>
 ```
 
 To generate CSS for HTML formatted code, use the [pygments.rb](https://github.com/tmm1/pygments.rb#usage) `#css` method. `pygments.rb` is a dependency of the `SyntaxHighlightFilter`.
@@ -239,12 +237,22 @@ Here are some extensions people have built:
 * [html-pipeline-asciidoc_filter](https://github.com/asciidoctor/html-pipeline-asciidoc_filter)
 * [jekyll-html-pipeline](https://github.com/gjtorikian/jekyll-html-pipeline)
 * [nanoc-html-pipeline](https://github.com/burnto/nanoc-html-pipeline)
-* [html-pipeline-bity](https://github.com/dewski/html-pipeline-bitly)
+* [html-pipeline-bitly](https://github.com/dewski/html-pipeline-bitly)
 * [html-pipeline-cite](https://github.com/lifted-studios/html-pipeline-cite)
 * [tilt-html-pipeline](https://github.com/bradgessler/tilt-html-pipeline)
 * [html-pipeline-wiki-link'](https://github.com/lifted-studios/html-pipeline-wiki-link) - WikiMedia-style wiki links
 * [task_list](https://github.com/github/task_list) - GitHub flavor Markdown Task List
 * [html-pipeline-rouge_filter](https://github.com/JuanitoFatas/html-pipeline-rouge_filter) - Syntax highlight with [Rouge](https://github.com/jneen/rouge/)
+* [html-pipeline-nico_link](https://github.com/rutan/html-pipeline-nico_link) - An HTML::Pipeline filter for [niconico](http://www.nicovideo.jp) description links
+* [html-pipeline-gitlab](https://gitlab.com/gitlab-org/html-pipeline-gitlab) - This gem implements various filters for html-pipeline used by GitLab
+* [html-pipeline-youtube](https://github.com/st0012/html-pipeline-youtube) - An HTML::Pipeline filter for YouTube links
+* [html-pipeline-flickr](https://github.com/st0012/html-pipeline-flickr) - An HTML::Pipeline filter for Flickr links
+* [html-pipeline-vimeo](https://github.com/dlackty/html-pipeline-vimeo) - An HTML::Pipeline filter for Vimeo links
+* [html-pipeline-hashtag](https://github.com/mr-dxdy/html-pipeline-hashtag) - An HTML::Pipeline filter for hashtags
+* [html-pipeline-linkify_github](https://github.com/jollygoodcode/html-pipeline-linkify_github) - An HTML::Pipeline filter to autolink GitHub urls
+* [html-pipeline-redcarpet_filter](https://github.com/bmikol/html-pipeline-redcarpet_filter) - Render Markdown source text into Markdown HTML using Redcarpet
+* [html-pipeline-typogruby_filter](https://github.com/bmikol/html-pipeline-typogruby_filter) - Add Typogruby text filters to your HTML::Pipeline
+
 
 ## Instrumenting
 
@@ -348,6 +356,9 @@ Project is a member of the [OSS Manifesto](http://ossmanifesto.org/).
 
 This section is for gem maintainers to cut a new version of the gem.
 
-* update lib/html/pipeline/version.rb to next version number X.X.X following [semver](http://semver.org).
-* update CHANGELOG.md. Get latest changes with `git log --oneline vLAST_RELEASE..HEAD | grep Merge`
+* create a new branch named `release-x.y.z` where `x.y.z` follows [semver](http://semver.org)
+* update lib/html/pipeline/version.rb to next version number X.X.X
+* update CHANGELOG.md. Prepare a draft with `script/changelog`
+* push branch and create a new pull request
+* after tests are green, merge to master
 * on the master branch, run `script/release`

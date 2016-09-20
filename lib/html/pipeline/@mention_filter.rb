@@ -70,7 +70,7 @@ module HTML
       def call
         result[:mentioned_usernames] ||= []
 
-        doc.search('text()').each do |node|
+        doc.search('.//text()').each do |node|
           content = node.to_html
           next if !content.include?('@')
           next if has_ancestor?(node, IGNORE_PARENTS)
@@ -103,7 +103,7 @@ module HTML
       #
       # Returns a string with @mentions replaced with links. All links have a
       # 'user-mention' class name attached for styling.
-      def mention_link_filter(text, base_url='/', info_url=nil, username_pattern)
+      def mention_link_filter(text, base_url='/', info_url=nil, username_pattern=UsernamePattern)
         self.class.mentioned_logins_in(text, username_pattern) do |match, login, is_mentioned|
           link =
             if is_mentioned

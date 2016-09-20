@@ -25,10 +25,35 @@ class HTML::Pipeline::CamoFilterTest < Minitest::Test
       CamoFilter.call(orig, @options).to_s
   end
 
+  def test_doesnt_rewrite_dotcom_image_urls
+    orig = %(<p><img src="https://github.com/img.png"></p>)
+    assert_equal orig, CamoFilter.call(orig, @options).to_s
+  end
+
+  def test_doesnt_rewrite_dotcom_subdomain_image_urls
+    orig = %(<p><img src="https://raw.github.com/img.png"></p>)
+    assert_equal orig, CamoFilter.call(orig, @options).to_s
+  end
+
+  def test_doesnt_rewrite_dotcom_subsubdomain_image_urls
+    orig = %(<p><img src="https://f.assets.github.com/img.png"></p>)
+    assert_equal orig, CamoFilter.call(orig, @options).to_s
+  end
+
   def test_camouflaging_github_prefixed_image_urls
     orig = %(<p><img src="https://notgithub.com/img.png"></p>)
     assert_equal %(<p><img src="https//assets.example.org/5d4a96c69713f850520538e04cb9661035cfb534/68747470733a2f2f6e6f746769746875622e636f6d2f696d672e706e67" data-canonical-src="https://notgithub.com/img.png"></p>),
       CamoFilter.call(orig, @options).to_s
+  end
+
+  def test_doesnt_rewrite_absolute_image_urls
+    orig = %(<p><img src="/img.png"></p>)
+    assert_equal orig, CamoFilter.call(orig, @options).to_s
+  end
+
+  def test_doesnt_rewrite_relative_image_urls
+    orig = %(<p><img src="img.png"></p>)
+    assert_equal orig, CamoFilter.call(orig, @options).to_s
   end
 
   def test_camouflaging_https_image_urls

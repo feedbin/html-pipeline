@@ -27,25 +27,27 @@ module HTML
     autoload :Filter,                 'html/pipeline/filter'
     autoload :AbsoluteSourceFilter,   'html/pipeline/absolute_source_filter'
     autoload :BodyContent,            'html/pipeline/body_content'
-    autoload :AbsoluteHrefFilter,     'html/pipeline/absolute_href_filter'
     autoload :AutolinkFilter,         'html/pipeline/autolink_filter'
     autoload :CamoFilter,             'html/pipeline/camo_filter'
-    autoload :CanonicalSourceFilter,  'html/pipeline/canonical_source_filter'
     autoload :EmailReplyFilter,       'html/pipeline/email_reply_filter'
     autoload :EmojiFilter,            'html/pipeline/emoji_filter'
     autoload :HttpsFilter,            'html/pipeline/https_filter'
+    autoload :ImageFilter,            'html/pipeline/image_filter'
     autoload :ImageMaxWidthFilter,    'html/pipeline/image_max_width_filter'
-    autoload :ImagePlaceholderFilter, 'html/pipeline/image_placeholder_filter'
-    autoload :LazyLoadFilter,         'html/pipeline/lazy_load_filter'
     autoload :MarkdownFilter,         'html/pipeline/markdown_filter'
     autoload :MentionFilter,          'html/pipeline/@mention_filter'
     autoload :PlainTextInputFilter,   'html/pipeline/plain_text_input_filter'
-    autoload :ProtocolFilter,         'html/pipeline/protocol_filter'
     autoload :SanitizationFilter,     'html/pipeline/sanitization_filter'
     autoload :SyntaxHighlightFilter,  'html/pipeline/syntax_highlight_filter'
     autoload :TextileFilter,          'html/pipeline/textile_filter'
     autoload :TableOfContentsFilter,  'html/pipeline/toc_filter'
     autoload :TextFilter,             'html/pipeline/text_filter'
+    autoload :AbsoluteHrefFilter,     'html/pipeline/absolute_href_filter'
+    autoload :ImagePlaceholderFilter, 'html/pipeline/image_placeholder_filter'
+    autoload :LazyLoadFilter,         'html/pipeline/lazy_load_filter'
+    autoload :ProtocolFilter,         'html/pipeline/protocol_filter'
+
+    class MissingDependencyError < LoadError; end
 
     # Our DOM implementation.
     DocumentFragment = Nokogiri::HTML::DocumentFragment
