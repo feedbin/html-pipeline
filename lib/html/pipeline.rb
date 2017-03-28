@@ -46,6 +46,7 @@ module HTML
     autoload :ImagePlaceholderFilter, 'html/pipeline/image_placeholder_filter'
     autoload :LazyLoadFilter,         'html/pipeline/lazy_load_filter'
     autoload :ProtocolFilter,         'html/pipeline/protocol_filter'
+    autoload :SrcFixer,               'html/pipeline/src_fixer'
 
     class MissingDependencyError < LoadError; end
 
