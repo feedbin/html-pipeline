@@ -20,4 +20,10 @@ class HTML::Pipeline::SrcFixerTest < Minitest::Test
     assert_equal orig,
       SrcFixer.call(orig).to_s
   end
+
+  def test_empty_src
+    orig = %(<p><img></p>)
+    assert_equal orig,
+      SrcFixer.call(orig).to_s
+  end
 end

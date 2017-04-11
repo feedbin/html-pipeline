@@ -6,6 +6,8 @@ module HTML
       def call
         doc.search("img").each do |element|
           src = element["src"]
+          next unless src
+
           if ext = EXTENSIONS.find { |ext| src.include?(pattern(ext)) }
             parts = src.split(pattern(ext))
             element["src"] = "#{parts.first}.#{ext}"
