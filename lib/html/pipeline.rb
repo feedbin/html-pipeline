@@ -47,6 +47,7 @@ module HTML
     autoload :LazyLoadFilter,         'html/pipeline/lazy_load_filter'
     autoload :ProtocolFilter,         'html/pipeline/protocol_filter'
     autoload :SrcFixer,               'html/pipeline/src_fixer'
+    autoload :LinkButton,             'html/pipeline/link_button'
 
     class MissingDependencyError < LoadError; end
 
