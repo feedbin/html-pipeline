@@ -36,6 +36,7 @@ module HTML
 
           next if uri.host.nil?
           next if asset_host_whitelisted?(uri.host)
+          next if uri.scheme == "https"
 
           element['src'] = asset_proxy_url(original_src)
           element['data-canonical-src'] = original_src
