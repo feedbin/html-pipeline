@@ -38,7 +38,8 @@ module HTML
           next if asset_host_whitelisted?(uri.host)
           next if uri.scheme == "https"
 
-          element['src'] = asset_proxy_url(original_src)
+          element["src"] = nil
+          element[src_attribute] = asset_proxy_url(original_src)
           element['data-canonical-src'] = original_src
         end
         doc
@@ -82,6 +83,10 @@ module HTML
         asset_proxy_whitelist.any? do |test|
           test.is_a?(String) ? host == test : test.match(host)
         end
+      end
+
+      def src_attribute
+        context[:asset_src_attribute] || "src"
       end
 
       # Private: helper to hexencode a string. Each byte ends up encoded into
