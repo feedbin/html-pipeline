@@ -63,9 +63,4 @@ class HTML::Pipeline::CamoFilterTest < Minitest::Test
     assert_match /:asset_proxy_secret_key/, exception.message
   end
 
-  def test_doesnt_rewrite_https_urls
-    orig = %(<p><img src="https://example.com/img.png"></p>)
-    assert_equal orig, CamoFilter.call(orig, @options).to_s
-  end
-
 end

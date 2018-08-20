@@ -48,6 +48,7 @@ module HTML
     autoload :ProtocolFilter,         'html/pipeline/protocol_filter'
     autoload :SrcFixer,               'html/pipeline/src_fixer'
     autoload :LinkButton,             'html/pipeline/link_button'
+    autoload :IframeFilter,           'html/pipeline/iframe_filter'
 
     class MissingDependencyError < LoadError; end
 

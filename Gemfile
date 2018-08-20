@@ -11,6 +11,7 @@ end
 
 group :test do
   gem "minitest"
+  gem "charlock_holmes",    "~> 0.7.6", :require => false
   gem "rinku",              "~> 1.7",   :require => false
   gem "gemoji",             "~> 2.0",   :require => false
   gem "RedCloth",           "~> 4.2.9", :require => false
