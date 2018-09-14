@@ -18,7 +18,7 @@ module HTML
       # This filter does not write additional information to the context.
       # This filter would need to be run before CamoFilter.
       def call
-        doc.search("img").each do |element| 
+        doc.search("img,video,audio").each do |element|
           next if element['src'].nil? || element['src'].empty?
           src = element['src'].strip
           next if src.start_with? 'data'
@@ -37,7 +37,7 @@ module HTML
         end
         doc
       end
-      
+
       # Private: the base url you want to use
       def image_base_url
         context[:image_base_url] or raise "Missing context :image_base_url for #{self.class.name}"
@@ -47,7 +47,7 @@ module HTML
       def image_subpage_url
         context[:image_subpage_url] or raise "Missing context :image_subpage_url for #{self.class.name}"
       end
-    
+
     end
   end
 end
