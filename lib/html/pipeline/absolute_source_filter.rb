@@ -17,23 +17,30 @@ module HTML
       #
       # This filter does not write additional information to the context.
       # This filter would need to be run before CamoFilter.
+      def fully_qualify(src)
+        unless src.start_with? 'http'
+          if src.start_with? '/'
+            base = image_base_url
+          else
+            base = image_subpage_url
+          end
+          src = URI.join(base, src).to_s rescue nil
+        end
+        src
+      end
+
       def call
-        doc.search("img,video,audio").each do |element|
+        doc.search("img,video,audio,source").each do |element|
           next if element['src'].nil? || element['src'].empty?
           src = element['src'].strip
           next if src.start_with? 'data'
-          unless src.start_with? 'http'
-            if src.start_with? '/'
-              base = image_base_url
-            else
-              base = image_subpage_url
-            end
-            begin
-              element["src"] = URI.join(base, src).to_s
-            rescue Exception => e
-              element["src"] = ''
-            end
-          end
+          element['src'] = fully_qualify(src)
+        end
+        doc.search("video").each do |element|
+          next if element['poster'].nil? || element['poster'].empty?
+          src = element['poster'].strip
+          next if src.start_with? 'data'
+          element['poster'] = fully_qualify(src)
         end
         doc
       end

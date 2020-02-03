@@ -41,6 +41,24 @@ module HTML
           element[src_attribute] = asset_proxy_url(original_src)
           element['data-canonical-src'] = original_src
         end
+
+        doc.search("video").each do |element|
+          original_src = element['poster']
+          next unless original_src
+
+          begin
+            uri = URI.parse(original_src)
+          rescue Exception
+            next
+          end
+
+          next if uri.host.nil?
+          next if asset_host_whitelisted?(uri.host)
+
+          element["poster"] = nil
+          element["data-camo-poster"] = asset_proxy_url(original_src)
+          element['data-canonical-poster'] = original_src
+        end
         doc
       end
 

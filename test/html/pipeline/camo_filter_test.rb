@@ -25,6 +25,12 @@ class HTML::Pipeline::CamoFilterTest < Minitest::Test
       CamoFilter.call(orig, @options).to_s
   end
 
+  def test_camouflaging_http_poster_urls
+    orig = %(<p><video poster="http://twitter.com/img.png"></video></p>)
+    assert_equal %(<p><video poster="https//assets.example.org/a5ad43494e343b20d745586282be61ff530e6fa0/687474703a2f2f747769747465722e636f6d2f696d672e706e67" data-canonical-poster="http://twitter.com/img.png"></video></p>),
+      CamoFilter.call(orig, @options).to_s
+  end
+
   def test_doesnt_rewrite_dotcom_image_urls
     orig = %(<p><img src="https://github.com/img.png"></p>)
     assert_equal orig, CamoFilter.call(orig, @options).to_s

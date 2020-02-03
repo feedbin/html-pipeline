@@ -12,6 +12,12 @@ class HTML::Pipeline::AbsoluteSourceFilterTest < Minitest::Test
     }
   end
 
+  def test_rewrites_root_posters
+    orig = %(<p><video poster="/img.png"></video></p>)
+    assert_equal "<p><video poster=\"#{@image_base_url}/img.png\"></video></p>",
+      AbsoluteSourceFilter.call(orig, @options).to_s
+  end
+
   def test_rewrites_root_urls
     orig = %(<p><img src="/img.png"></p>)
     assert_equal "<p><img src=\"#{@image_base_url}/img.png\"></p>",
@@ -39,15 +45,15 @@ class HTML::Pipeline::AbsoluteSourceFilterTest < Minitest::Test
       AbsoluteSourceFilter.call("<img src=\"/img.png\">", {})
     end
   end
-  
+
   def test_tells_you_where_context_is_required
-    exception = assert_raises(RuntimeError) { 
-      AbsoluteSourceFilter.call("<img src=\"img.png\">", {}) 
+    exception = assert_raises(RuntimeError) {
+      AbsoluteSourceFilter.call("<img src=\"img.png\">", {})
     }
     assert_match 'HTML::Pipeline::AbsoluteSourceFilter', exception.message
 
-    exception = assert_raises(RuntimeError) { 
-      AbsoluteSourceFilter.call("<img src=\"/img.png\">", {}) 
+    exception = assert_raises(RuntimeError) {
+      AbsoluteSourceFilter.call("<img src=\"/img.png\">", {})
     }
     assert_match 'HTML::Pipeline::AbsoluteSourceFilter', exception.message
   end
