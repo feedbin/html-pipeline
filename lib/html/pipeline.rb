@@ -49,6 +49,7 @@ module HTML
     autoload :SrcFixer,               'html/pipeline/src_fixer'
     autoload :LinkButton,             'html/pipeline/link_button'
     autoload :IframeFilter,           'html/pipeline/iframe_filter'
+    autoload :SmileyFilter,           'html/pipeline/smiley_filter'
 
     class MissingDependencyError < LoadError; end
 
