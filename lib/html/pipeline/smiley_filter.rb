@@ -8,7 +8,7 @@ module HTML
       def call
         doc.search("img[alt].wp-smiley").each do |image|
           alt = image["alt"]
-          if alt.length == 1 && alt.bytesize >= 4
+          if alt.length == 1 && alt.bytesize >= 3
             image.replace(alt)
           end
         end
