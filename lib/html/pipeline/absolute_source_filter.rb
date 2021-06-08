@@ -24,7 +24,7 @@ module HTML
           else
             base = image_subpage_url
           end
-          src = URI.join(base, src).to_s rescue nil
+          src = URI.join(base, src.gsub(' ', '%20')).to_s rescue nil
         end
         src
       end
