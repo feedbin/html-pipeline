@@ -5,7 +5,8 @@ class HTML::Pipeline::AbsoluteSourceFilterTest < Minitest::Test
 
   def setup
     @image_base_url = 'http://assets.example.com'
-    @image_subpage_url = 'http://blog.example.com/a/post'
+    @image_subpage_base_url = 'http://blog.example.com/a'
+    @image_subpage_url = "#{@image_subpage_base_url}/post"
     @options = {
       :image_base_url    => @image_base_url,
       :image_subpage_url => @image_subpage_url
@@ -32,8 +33,34 @@ class HTML::Pipeline::AbsoluteSourceFilterTest < Minitest::Test
 
   def test_rewrites_relative_urls
     orig = %(<p><img src="post/img.png"></p>)
-    assert_equal "<p><img src=\"#{@image_subpage_url}/img.png\"></p>",
+    assert_equal "<p><img src=\"#{@image_subpage_base_url}/post/img.png\"></p>",
       AbsoluteSourceFilter.call(orig, @options).to_s
+  end
+
+  def test_rewrites_relative_urls_data_subdirectory
+    orig = %(<p><img src="data/img.png"></p>)
+    assert_equal "<p><img src=\"#{@image_subpage_base_url}/data/img.png\"></p>",
+      AbsoluteSourceFilter.call(orig, @options).to_s
+  end
+
+  def test_rewrites_relative_urls_http_subdirectory
+    orig = %(<p><img src="http/img.png"></p>)
+    assert_equal "<p><img src=\"#{@image_subpage_base_url}/http/img.png\"></p>",
+      AbsoluteSourceFilter.call(orig, @options).to_s
+  end
+
+  def test_does_not_rewrite_data_urls
+    orig = %(<p><img src="data:image/png;base64,..."></p>)
+    result = AbsoluteSourceFilter.call(orig, @options).to_s
+    refute_match /@image_base_url/, result
+    refute_match /@image_subpage_url/, result
+  end
+
+  def test_does_not_rewrite_absolute_https_urls
+    orig = %(<p><img src="https://other.example.com/img.png"></p>)
+    result = AbsoluteSourceFilter.call(orig, @options).to_s
+    refute_match /@image_base_url/, result
+    refute_match /@image_subpage_url/, result
   end
 
   def test_does_not_rewrite_absolute_urls
