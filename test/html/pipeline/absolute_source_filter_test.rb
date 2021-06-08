@@ -18,6 +18,12 @@ class HTML::Pipeline::AbsoluteSourceFilterTest < Minitest::Test
       AbsoluteSourceFilter.call(orig, @options).to_s
   end
 
+  def test_rewrites_root_urls_with_space
+    orig = %(<p><img src="/an img.png"></p>)
+    assert_equal "<p><img src=\"#{@image_base_url}/an%20img.png\"></p>",
+      AbsoluteSourceFilter.call(orig, @options).to_s
+  end
+
   def test_rewrites_root_urls
     orig = %(<p><img src="/img.png"></p>)
     assert_equal "<p><img src=\"#{@image_base_url}/img.png\"></p>",
