@@ -18,7 +18,7 @@ module HTML
       # This filter does not write additional information to the context.
       # This filter would need to be run before CamoFilter.
       def fully_qualify(src)
-        unless src.start_with? 'http'
+        unless src.start_with? /https?:/
           if src.start_with? '/'
             base = image_base_url
           else
@@ -33,13 +33,13 @@ module HTML
         doc.search("img,video,audio,source").each do |element|
           next if element['src'].nil? || element['src'].empty?
           src = element['src'].strip
-          next if src.start_with? 'data'
+          next if src.start_with? 'data:'
           element['src'] = fully_qualify(src)
         end
         doc.search("video").each do |element|
           next if element['poster'].nil? || element['poster'].empty?
           src = element['poster'].strip
-          next if src.start_with? 'data'
+          next if src.start_with? 'data:'
           element['poster'] = fully_qualify(src)
         end
         doc
