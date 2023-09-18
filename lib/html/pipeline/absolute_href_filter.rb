@@ -25,7 +25,7 @@ module HTML
               base = href_subpage_url
             end
             begin
-              element["href"] = URI.join(base, href).to_s
+              element["href"] = Addressable::URI.join(base, href).to_s
             rescue Exception => e
               element["href"] = href
             end

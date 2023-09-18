@@ -50,12 +50,11 @@ module HTML
     autoload :LinkButton,             'html/pipeline/link_button'
     autoload :IframeFilter,           'html/pipeline/iframe_filter'
     autoload :SmileyFilter,           'html/pipeline/smiley_filter'
-    autoload :ImageproxyFilter,       'html/pipeline/imageproxy_filter'
 
     class MissingDependencyError < LoadError; end
 
     # Our DOM implementation.
-    DocumentFragment = Nokogiri::HTML::DocumentFragment
+    DocumentFragment = Loofah::HTML5::DocumentFragment
 
     # Parse a String into a DocumentFragment object. When a DocumentFragment is
     # provided, return it verbatim.

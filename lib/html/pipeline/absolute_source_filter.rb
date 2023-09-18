@@ -24,7 +24,7 @@ module HTML
           else
             base = image_subpage_url
           end
-          src = URI.join(base, src).to_s rescue nil
+          src = Addressable::URI.join(base, src).to_s rescue nil
         end
         src
       end

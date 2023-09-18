@@ -28,14 +28,15 @@ module HTML
           original_src = element['src']
           next unless original_src
 
-          begin
-            uri = URI.parse(original_src)
+          uri = begin
+            Addressable::URI.heuristic_parse(original_src)
           rescue Exception
             next
           end
 
           next if uri.host.nil?
           next if asset_host_whitelisted?(uri.host)
+          original_src = uri.normalize.to_s
 
           element["src"] = nil
           element[src_attribute] = asset_proxy_url(original_src)
@@ -46,14 +47,15 @@ module HTML
           original_src = element['poster']
           next unless original_src
 
-          begin
-            uri = URI.parse(original_src)
+          uri = begin
+            Addressable::URI.heuristic_parse(original_src)
           rescue Exception
             next
           end
 
           next if uri.host.nil?
           next if asset_host_whitelisted?(uri.host)
+          original_src = uri.normalize.to_s
 
           element["poster"] = nil
           element["data-camo-poster"] = asset_proxy_url(original_src)

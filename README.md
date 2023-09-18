@@ -210,7 +210,7 @@ class RootRelativeFilter < HTML::Pipeline::Filter
       next if img['src'].nil?
       src = img['src'].strip
       if src.start_with? '/'
-        img["src"] = URI.join(context[:base_url], src).to_s
+        img["src"] = Addressable::URI.join(context[:base_url], src).to_s
       end
     end
     doc
