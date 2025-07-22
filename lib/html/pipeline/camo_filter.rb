@@ -1,5 +1,5 @@
-require 'openssl'
-require 'uri'
+require "openssl"
+require "uri"
 
 module HTML
   class Pipeline
@@ -25,11 +25,11 @@ module HTML
         return doc unless asset_proxy_enabled?
 
         doc.search("img").each do |element|
-          original_src = element['src']
+          original_src = element["src"]
           next unless original_src
 
           uri = begin
-            Addressable::URI.heuristic_parse(original_src)
+            Addressable::URI.parse(original_src)
           rescue Exception
             next
           end
@@ -38,13 +38,13 @@ module HTML
           next if asset_host_whitelisted?(uri.host)
           original_src = uri.normalize.to_s
 
-          element["src"] = nil
+          element.delete("src")
           element[src_attribute] = asset_proxy_url(original_src)
-          element['data-canonical-src'] = original_src
+          element["data-canonical-src"] = original_src
         end
 
         doc.search("video").each do |element|
-          original_src = element['poster']
+          original_src = element["poster"]
           next unless original_src
 
           uri = begin
@@ -57,10 +57,33 @@ module HTML
           next if asset_host_whitelisted?(uri.host)
           original_src = uri.normalize.to_s
 
-          element["poster"] = nil
+          element.delete("poster")
           element["data-camo-poster"] = asset_proxy_url(original_src)
-          element['data-canonical-poster'] = original_src
+          element["data-canonical-poster"] = original_src
         end
+
+        doc.search("[srcset]").each do |element|
+          srcset = element["srcset"]
+          next if srcset.nil? || srcset.empty?
+
+          camo_srcset = parse_srcset(srcset) do |uri|
+            uri = begin
+              Addressable::URI.heuristic_parse(uri)
+            rescue Exception
+              next
+            end
+
+            next if uri.host.nil?
+            next if asset_host_whitelisted?(uri.host)
+
+            asset_proxy_url(uri.normalize.to_s)
+          end
+
+          element.delete("srcset")
+          element["data-canonical-srcset"] = srcset
+          element["data-camo-srcset"] = camo_srcset
+        end
+
         doc
       end
 
@@ -77,7 +100,7 @@ module HTML
 
       # Private: calculate the HMAC digest for a image source URL.
       def asset_url_hash(url)
-        OpenSSL::HMAC.hexdigest('sha1', asset_proxy_secret_key, url)
+        OpenSSL::HMAC.hexdigest("sha1", asset_proxy_secret_key, url)
       end
 
       # Private: Return true if asset proxy filter should be enabled

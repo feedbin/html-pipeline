@@ -122,6 +122,24 @@ module HTML
         end
       end
 
+      # Public: get urls from a srcset to be transformed by a filter
+      #
+      # Returns modified srcset.
+      def parse_srcset(srcset, &block)
+        sources = srcset.split(",\s")
+        result = sources.each_with_object([]) do |source, array|
+          parts = source.split(" ")
+          transformed = if url = parts.shift
+            yield(url)
+          end
+          if !transformed.nil?
+            parts.unshift(transformed)
+            array.push(parts.join(" "))
+          end
+        end
+        result.join(", ")
+      end
+
       # Perform a filter on doc with the given context.
       #
       # Returns a HTML::Pipeline::DocumentFragment or a String containing HTML

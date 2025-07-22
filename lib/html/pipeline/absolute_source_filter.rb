@@ -42,6 +42,17 @@ module HTML
           next if src.start_with? 'data:'
           element['poster'] = fully_qualify(src)
         end
+        doc.search("[srcset]").each do |element|
+          srcset = element["srcset"]
+          next if srcset.nil? || srcset.empty?
+          element['srcset'] = parse_srcset(srcset) do |url|
+            if url.start_with? 'data:'
+              url
+            else
+              fully_qualify(url)
+            end
+          end
+        end
         doc
       end
 

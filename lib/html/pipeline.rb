@@ -1,5 +1,6 @@
 require "nokogiri"
 require "active_support/xml_mini/nokogiri" # convert Documents to hashes
+require "addressable"
 
 module HTML
   # GitHub HTML processing filters and utilities. This module includes a small
@@ -29,7 +30,6 @@ module HTML
     autoload :BodyContent,            'html/pipeline/body_content'
     autoload :AutolinkFilter,         'html/pipeline/autolink_filter'
     autoload :CamoFilter,             'html/pipeline/camo_filter'
-    autoload :EmailReplyFilter,       'html/pipeline/email_reply_filter'
     autoload :EmojiFilter,            'html/pipeline/emoji_filter'
     autoload :HttpsFilter,            'html/pipeline/https_filter'
     autoload :ImageFilter,            'html/pipeline/image_filter'
@@ -54,7 +54,7 @@ module HTML
     class MissingDependencyError < LoadError; end
 
     # Our DOM implementation.
-    DocumentFragment = Loofah::HTML5::DocumentFragment
+    DocumentFragment = Nokogiri::HTML::DocumentFragment
 
     # Parse a String into a DocumentFragment object. When a DocumentFragment is
     # provided, return it verbatim.

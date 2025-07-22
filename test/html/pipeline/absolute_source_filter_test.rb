@@ -49,6 +49,12 @@ class HTML::Pipeline::AbsoluteSourceFilterTest < Minitest::Test
       AbsoluteSourceFilter.call(orig, @options).to_s
   end
 
+  def test_rewrites_relative_srcsets
+    orig = %(<img srcset="/img.png 1x, img2.png 2x, data:example 3x">)
+    assert_equal %(<img srcset="#{@image_base_url}/img.png 1x, #{@image_subpage_base_url}/img2.png 2x, data:example 3x">),
+      AbsoluteSourceFilter.call(orig, @options).to_s
+  end
+
   def test_does_not_rewrite_data_urls
     orig = %(<p><img src="data:image/png;base64,..."></p>)
     result = AbsoluteSourceFilter.call(orig, @options).to_s
