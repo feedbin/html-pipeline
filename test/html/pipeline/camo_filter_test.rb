@@ -37,6 +37,12 @@ class HTML::Pipeline::CamoFilterTest < Minitest::Test
       CamoFilter.call(orig, @options).to_s
   end
 
+  def test_invalid_srcset
+    orig = %(<img srcset="/1">)
+    assert_equal %(<img>),
+      CamoFilter.call(orig, @options).to_s
+  end
+
   def test_doesnt_rewrite_dotcom_image_urls
     orig = %(<p><img src="https://github.com/img.png"></p>)
     assert_equal orig, CamoFilter.call(orig, @options).to_s

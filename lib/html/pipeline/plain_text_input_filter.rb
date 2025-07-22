@@ -1,8 +1,4 @@
-begin
-  require "escape_utils"
-rescue LoadError => _
-  raise HTML::Pipeline::MissingDependencyError, "Missing dependency 'escape_utils' for PlainTextInputFilter. See README.md for details."
-end
+require "cgi"
 
 module HTML
   class Pipeline
@@ -10,7 +6,7 @@ module HTML
     # in a div.
     class PlainTextInputFilter < TextFilter
       def call
-        "<div>#{EscapeUtils.escape_html(@text, false)}</div>"
+        "<div>#{CGI.escape_html(@text)}</div>"
       end
     end
   end

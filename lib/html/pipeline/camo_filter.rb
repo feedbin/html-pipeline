@@ -1,5 +1,6 @@
 require "openssl"
 require "uri"
+require_relative 'srcset_parser'
 
 module HTML
   class Pipeline
@@ -66,22 +67,17 @@ module HTML
           srcset = element["srcset"]
           next if srcset.nil? || srcset.empty?
 
-          camo_srcset = parse_srcset(srcset) do |uri|
-            uri = begin
-              Addressable::URI.heuristic_parse(uri)
-            rescue Exception
-              next
-            end
-
-            next if uri.host.nil?
-            next if asset_host_whitelisted?(uri.host)
-
-            asset_proxy_url(uri.normalize.to_s)
+          result = SrcsetParser.parse(srcset) do |url|
+            uri = Addressable::URI.heuristic_parse(url)
+            raise if uri.host.nil?
+            asset_proxy_url(url)
           end
 
           element.delete("srcset")
-          element["data-canonical-srcset"] = srcset
-          element["data-camo-srcset"] = camo_srcset
+          if result.success?
+            element["data-canonical-srcset"] = srcset
+            element["data-camo-srcset"] = result.value
+          end
         end
 
         doc

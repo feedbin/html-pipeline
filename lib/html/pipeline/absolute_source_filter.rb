@@ -1,4 +1,5 @@
 require 'uri'
+require_relative 'srcset_parser'
 
 module HTML
   class Pipeline
@@ -45,12 +46,13 @@ module HTML
         doc.search("[srcset]").each do |element|
           srcset = element["srcset"]
           next if srcset.nil? || srcset.empty?
-          element['srcset'] = parse_srcset(srcset) do |url|
-            if url.start_with? 'data:'
-              url
-            else
-              fully_qualify(url)
-            end
+          result = SrcsetParser.parse(srcset) do |url|
+            fully_qualify(url)
+          end
+          if result.success?
+            element['srcset'] = result.value
+          else
+            element.delete("srcset")
           end
         end
         doc

@@ -97,4 +97,94 @@ class HTML::Pipeline::AbsoluteSourceFilterTest < Minitest::Test
     assert_match 'HTML::Pipeline::AbsoluteSourceFilter', exception.message
   end
 
+  def test_srcset_with_width_descriptors
+    orig = %(<img srcset="elva-fairy-480w.jpg 480w, elva-fairy-800w.jpg 800w">)
+    assert_equal %(<img srcset="#{@image_subpage_base_url}/elva-fairy-480w.jpg 480w, #{@image_subpage_base_url}/elva-fairy-800w.jpg 800w">),
+      AbsoluteSourceFilter.call(orig, @options).to_s
+  end
+
+  def test_srcset_with_density_descriptors
+    orig = %(<img srcset="image-320w.jpg, image-480w.jpg 1.5x, image-640w.jpg 2x">)
+    assert_equal %(<img srcset="#{@image_subpage_base_url}/image-320w.jpg, #{@image_subpage_base_url}/image-480w.jpg 1.5x, #{@image_subpage_base_url}/image-640w.jpg 2x">),
+      AbsoluteSourceFilter.call(orig, @options).to_s
+  end
+
+  def test_srcset_with_mixed_absolute_and_relative_urls
+    orig = %(<img srcset="https://cdn.example.com/image1.jpg 480w, /images/image2.jpg 800w, relative/image3.jpg 1200w">)
+    assert_equal %(<img srcset="https://cdn.example.com/image1.jpg 480w, #{@image_base_url}/images/image2.jpg 800w, #{@image_subpage_base_url}/relative/image3.jpg 1200w">),
+      AbsoluteSourceFilter.call(orig, @options).to_s
+  end
+
+  def test_srcset_with_query_parameters
+    orig = %(<img srcset="image.jpg?size=small 480w, image.jpg?size=large 1200w">)
+    assert_equal %(<img srcset="#{@image_subpage_base_url}/image.jpg?size=small 480w, #{@image_subpage_base_url}/image.jpg?size=large 1200w">),
+      AbsoluteSourceFilter.call(orig, @options).to_s
+  end
+
+  def test_srcset_with_spaces_in_urls
+    orig = %(<img srcset="image%20with%20spaces.jpg 480w, another%20spaced%20image.jpg 800w">)
+    assert_equal %(<img srcset="#{@image_subpage_base_url}/image%20with%20spaces.jpg 480w, #{@image_subpage_base_url}/another%20spaced%20image.jpg 800w">),
+      AbsoluteSourceFilter.call(orig, @options).to_s
+  end
+
+  def test_srcset_with_complex_cloudflare_urls
+    orig = %(<img srcset="/cdn-cgi/image/format=auto,fit=scale-down,width=500,metadata=none/plus/misc/images/xkcd-plants-animals.jpg 500w, /cdn-cgi/image/format=auto,fit=scale-down,width=1200,metadata=none/plus/misc/images/xkcd-plants-animals.jpg 1200w">)
+    assert_equal %(<img srcset="#{@image_base_url}/cdn-cgi/image/format=auto,fit=scale-down,width=500,metadata=none/plus/misc/images/xkcd-plants-animals.jpg 500w, #{@image_base_url}/cdn-cgi/image/format=auto,fit=scale-down,width=1200,metadata=none/plus/misc/images/xkcd-plants-animals.jpg 1200w">),
+      AbsoluteSourceFilter.call(orig, @options).to_s
+  end
+
+  def test_srcset_with_decimal_pixel_density
+    orig = %(<img srcset="image1.jpg 1.5x, image2.jpg 2.5x">)
+    assert_equal %(<img srcset="#{@image_subpage_base_url}/image1.jpg 1.5x, #{@image_subpage_base_url}/image2.jpg 2.5x">),
+      AbsoluteSourceFilter.call(orig, @options).to_s
+  end
+
+  def test_srcset_with_extra_whitespace
+    orig = %(<img srcset="  image1.jpg   480w  ,   image2.jpg   800w  ">)
+    assert_equal %(<img srcset="#{@image_subpage_base_url}/image1.jpg 480w, #{@image_subpage_base_url}/image2.jpg 800w">),
+      AbsoluteSourceFilter.call(orig, @options).to_s
+  end
+
+  def test_srcset_already_absolute_urls
+    orig = %(<img srcset="https://cdn.example.com/image1.jpg 480w, https://cdn.example.com/image2.jpg 800w">)
+    assert_equal %(<img srcset="https://cdn.example.com/image1.jpg 480w, https://cdn.example.com/image2.jpg 800w">),
+      AbsoluteSourceFilter.call(orig, @options).to_s
+  end
+
+  def test_srcset_single_url_without_descriptor
+    orig = %(<img srcset="single-image.jpg">)
+    assert_equal %(<img srcset="#{@image_subpage_base_url}/single-image.jpg">),
+      AbsoluteSourceFilter.call(orig, @options).to_s
+  end
+
+  def test_srcset_with_trailing_commas_parse_error
+    orig = %(<img srcset="image1.jpg, 480w, image2.jpg 800w">)
+    assert_equal %(<img srcset="#{@image_subpage_base_url}/image1.jpg, #{@image_subpage_base_url}/480w, #{@image_subpage_base_url}/image2.jpg 800w">),
+      AbsoluteSourceFilter.call(orig, @options).to_s
+  end
+
+  def test_srcset_with_invalid_descriptors
+    orig = %(<img srcset="image1.jpg 0w, image2.jpg 100w">)
+    assert_equal %(<img srcset="#{@image_subpage_base_url}/image1.jpg 0w, #{@image_subpage_base_url}/image2.jpg 100w">),
+      AbsoluteSourceFilter.call(orig, @options).to_s
+  end
+
+  def test_srcset_with_parentheses_in_descriptors
+    orig = %(<img srcset="image.jpg calc(100vw-20px)">)
+    assert_equal %(<img srcset="#{@image_subpage_base_url}/image.jpg calc(100vw-20px)">),
+      AbsoluteSourceFilter.call(orig, @options).to_s
+  end
+
+  def test_empty_srcset
+    orig = %(<img srcset="">)
+    assert_equal %(<img srcset="">),
+      AbsoluteSourceFilter.call(orig, @options).to_s
+  end
+
+  def test_srcset_with_only_whitespace
+    orig = %(<img srcset="    ">)
+    assert_equal %(<img srcset="">),
+      AbsoluteSourceFilter.call(orig, @options).to_s
+  end
+
 end
