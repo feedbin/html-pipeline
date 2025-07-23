@@ -1,3 +1,5 @@
+require 'strscan'
+
 class SrcsetParser
   def self.parse(srcset, &block)
     new(srcset, &block).parse
@@ -27,76 +29,43 @@ class SrcsetParser
 
   def parse_candidates
     candidates = []
-    position = 0
-
-    while position < @input.length
+    scanner = StringScanner.new(@input)
+    
+    until scanner.eos?
       # Skip whitespace and commas
-      while position < @input.length && (@input[position] =~ /[\s,]/)
-        position += 1
-      end
-      break if position >= @input.length
-
-      # Find URL end (whitespace or comma after non-whitespace)
-      url_start = position
-      url_end = position
-
-      while position < @input.length
-        if @input[position] == ','
-          # Check if this comma is followed by whitespace or end of string
-          # If so, it's a separator, not part of the URL
-          next_pos = position + 1
-          if next_pos >= @input.length || @input[next_pos] =~ /\s/
-            url_end = position
-            break
-          end
-        elsif @input[position] =~ /\s/
-          url_end = position
+      scanner.skip(/[\s,]+/)
+      break if scanner.eos?
+      
+      # Parse URL - everything up to whitespace or a comma followed by whitespace/EOL
+      url = scanner.scan(/[^\s,]+(?:,[^\s,]+)*/)
+      break unless url
+      
+      # Skip whitespace after URL
+      scanner.skip(/\s+/)
+      
+      # Parse descriptors (everything until comma or end)
+      descriptors = []
+      until scanner.eos? || scanner.check(/,/)
+        if descriptor = scanner.scan(/[^\s,]+/)
+          descriptors << descriptor
+          scanner.skip(/\s+/)
+        else
           break
         end
-        position += 1
       end
-
-      # Handle end of string
-      url_end = position if position >= @input.length
-
-      url = @input[url_start...url_end]
-
-      # Skip whitespace after URL
-      while position < @input.length && @input[position] =~ /\s/
-        position += 1
-      end
-
-      # Collect descriptors
-      descriptors = []
-      descriptor_start = position
-
-      while position < @input.length && @input[position] != ','
-        if @input[position] =~ /\s/
-          if descriptor_start < position
-            descriptors << @input[descriptor_start...position]
-            descriptor_start = position + 1
-          end
-        end
-        position += 1
-      end
-
-      # Add last descriptor if any
-      if descriptor_start < position && position <= @input.length
-        last_descriptor = @input[descriptor_start...position].strip
-        descriptors << last_descriptor unless last_descriptor.empty?
-      end
-
+      
+      # Skip comma if present
+      scanner.skip(/,/)
+      
       # Transform and add candidate
-      if !url.empty?
-        transformed_url = @url_transform.call(url)
-        if descriptors.empty?
-          candidates << transformed_url
-        else
-          candidates << "#{transformed_url} #{descriptors.join(' ')}"
-        end
+      transformed_url = @url_transform.call(url)
+      if descriptors.empty?
+        candidates << transformed_url
+      else
+        candidates << "#{transformed_url} #{descriptors.join(' ')}"
       end
     end
-
+    
     candidates
   end
 
