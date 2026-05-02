@@ -70,7 +70,7 @@ module HTML
           result = SrcsetParser.parse(srcset) do |url|
             uri = Addressable::URI.heuristic_parse(url)
             raise if uri.host.nil?
-            asset_proxy_url(url)
+            asset_proxy_url(uri.normalize.to_s)
           end
 
           element.delete("srcset")

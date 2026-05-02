@@ -37,6 +37,13 @@ class HTML::Pipeline::CamoFilterTest < Minitest::Test
       CamoFilter.call(orig, @options).to_s
   end
 
+  def test_camouflaging_srcset_with_non_ascii_characters
+    orig = %(<img srcset="http://example.com/JOSÉ.jpg 1w">)
+    # hex of "http://example.com/JOS%C3%89.jpg" — Camo requires percent-encoding
+    expected_hex = "http://example.com/JOS%C3%89.jpg".each_byte.map { |b| "%02x" % b }.join
+    assert_includes CamoFilter.call(orig, @options).to_s, expected_hex
+  end
+
   def test_invalid_srcset
     orig = %(<img srcset="/1">)
     assert_equal %(<img>),
