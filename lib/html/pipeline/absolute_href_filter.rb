@@ -15,7 +15,7 @@ module HTML
       #
       # This filter does not write additional information to the context.
       def call
-        doc.search("a").each do |element|
+        elements("a").each do |element|
           next if element['href'].nil? || element['href'].empty?
           href = element['href'].strip
           unless href.start_with? 'http'

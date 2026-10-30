@@ -17,7 +17,7 @@ module HTML
       # Hijacks images in the markup provided, replacing them with URLs that
       # go through the github asset proxy.
       def call
-        doc.search("iframe").each do |element|
+        elements("iframe").each do |element|
           replacement = Nokogiri::XML::Element.new("div", doc)
           uri = URI(element["src"]) rescue nil
           if uri && uri.host

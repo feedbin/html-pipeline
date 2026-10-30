@@ -25,7 +25,7 @@ module HTML
       def call
         return doc unless asset_proxy_enabled?
 
-        doc.search("img").each do |element|
+        elements("img").each do |element|
           original_src = element["src"]
           next unless original_src
 
@@ -44,7 +44,7 @@ module HTML
           element["data-canonical-src"] = original_src
         end
 
-        doc.search("video").each do |element|
+        elements("video").each do |element|
           original_src = element["poster"]
           next unless original_src
 
@@ -63,7 +63,7 @@ module HTML
           element["data-canonical-poster"] = original_src
         end
 
-        doc.search("[srcset]").each do |element|
+        elements_with("srcset").each do |element|
           srcset = element["srcset"]
           next if srcset.nil? || srcset.empty?
 

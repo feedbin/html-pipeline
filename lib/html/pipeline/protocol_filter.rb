@@ -10,7 +10,7 @@ module HTML
       #
       # This filter does not write additional information to the context.
       def call
-        doc.search("iframe").each do |element| 
+        elements("iframe").each do |element| 
           next if element['src'].nil? || element['src'].empty?
           src = element['src'].strip
           if src.start_with? '//'

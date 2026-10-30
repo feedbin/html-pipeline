@@ -6,7 +6,7 @@ module HTML
       # This filter does not write additional information to the context.
       # This filter would need to be run before CamoFilter.
       def call
-        doc.search("img").each do |element|
+        elements("img").each do |element|
           patterns = ['data-original', 'data-canonical-src', 'data-src']
           patterns.each do |pattern|
             if !element[pattern].nil? && !element[pattern].empty?

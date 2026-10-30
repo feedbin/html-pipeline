@@ -4,7 +4,7 @@ module HTML
       EXTENSIONS = %w(APNG BMP GIF JPEG JPG PNG SVG apng bmp gif jpeg jpg png svg)
 
       def call
-        doc.search("img").each do |element|
+        elements("img").each do |element|
           src = element["src"]
           next unless src
 

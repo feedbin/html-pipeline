@@ -31,19 +31,19 @@ module HTML
       end
 
       def call
-        doc.search("img,video,audio,source").each do |element|
+        elements("img", "video", "audio", "source").each do |element|
           next if element['src'].nil? || element['src'].empty?
           src = element['src'].strip
           next if src.start_with? 'data:'
           element['src'] = fully_qualify(src)
         end
-        doc.search("video").each do |element|
+        elements("video").each do |element|
           next if element['poster'].nil? || element['poster'].empty?
           src = element['poster'].strip
           next if src.start_with? 'data:'
           element['poster'] = fully_qualify(src)
         end
-        doc.search("[srcset]").each do |element|
+        elements_with("srcset").each do |element|
           srcset = element["srcset"]
           next if srcset.nil? || srcset.empty?
           result = SrcsetParser.parse(srcset) do |url|

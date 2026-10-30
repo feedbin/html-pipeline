@@ -67,6 +67,23 @@ module HTML
         @html || doc.to_html
       end
 
+      # Elements with any of the given tag names, in document order.
+      #
+      # Nokogiri answers search/css on a DocumentFragment by running the query
+      # once per top-level node and merging the results, so a filter paid for
+      # every paragraph in the content on each lookup. An XPath on the
+      # descendant axis is evaluated once from the fragment (or document).
+      # The .// shorthand is not used because a fragment's top-level nodes
+      # drop out of it when the step carries a predicate.
+      def elements(*names)
+        doc.xpath(names.map { |name| "./descendant::#{name}" }.join(" | "))
+      end
+
+      # Elements carrying the given attribute, in document order.
+      def elements_with(attribute)
+        doc.xpath("./descendant::*[@#{attribute}]")
+      end
+
       # The main filter entry point. The doc attribute is guaranteed to be a
       # Nokogiri::HTML::DocumentFragment when invoked. Subclasses should modify
       # this document in place or extract information and add it to the context
