@@ -88,4 +88,17 @@ class HTML::Pipeline::CamoFilterTest < Minitest::Test
     assert_match /:asset_proxy_secret_key/, exception.message
   end
 
+  def test_keep_src_adds_camo_attributes_beside_the_originals
+    options = @options.merge(asset_src_attribute: "data-camo-src", asset_keep_src: true)
+    orig = %(<p><img src="http://kottke.org/img.png" srcset="http://example.com/img.png 1w"><video poster="http://twitter.com/img.png"></video></p>)
+    html = CamoFilter.call(orig, options).to_s
+    assert_includes html, %( src="http://kottke.org/img.png")
+    assert_includes html, %( srcset="http://example.com/img.png 1w")
+    assert_includes html, %( poster="http://twitter.com/img.png")
+    assert_match %r{data-camo-src="https//assets.example.org/\h{40}/\h+"}, html
+    assert_match %r{data-camo-srcset="https//assets.example.org/\h{40}/\h+ 1w"}, html
+    assert_match %r{data-camo-poster="https//assets.example.org/\h{40}/\h+"}, html
+    refute_includes html, "data-canonical-"
+  end
+
 end

@@ -39,9 +39,9 @@ module HTML
           next if asset_host_whitelisted?(uri.host)
           original_src = uri.normalize.to_s
 
-          element.delete("src")
+          element.delete("src") unless keep_src?
           element[src_attribute] = asset_proxy_url(original_src)
-          element["data-canonical-src"] = original_src
+          element["data-canonical-src"] = original_src unless keep_src?
         end
 
         elements("video").each do |element|
@@ -58,9 +58,9 @@ module HTML
           next if asset_host_whitelisted?(uri.host)
           original_src = uri.normalize.to_s
 
-          element.delete("poster")
+          element.delete("poster") unless keep_src?
           element["data-camo-poster"] = asset_proxy_url(original_src)
-          element["data-canonical-poster"] = original_src
+          element["data-canonical-poster"] = original_src unless keep_src?
         end
 
         elements_with("srcset").each do |element|
@@ -73,9 +73,9 @@ module HTML
             asset_proxy_url(uri.normalize.to_s)
           end
 
-          element.delete("srcset")
+          element.delete("srcset") unless keep_src?
           if result.success?
-            element["data-canonical-srcset"] = srcset
+            element["data-canonical-srcset"] = srcset unless keep_src?
             element["data-camo-srcset"] = result.value
           end
         end
@@ -121,6 +121,13 @@ module HTML
         asset_proxy_whitelist.any? do |test|
           test.is_a?(String) ? host == test : test.match(host)
         end
+      end
+
+      # Private: leave src, poster and srcset in place and only add the
+      # data-camo-* attributes beside them, for output that must work
+      # without the page's JavaScript.
+      def keep_src?
+        !!context[:asset_keep_src]
       end
 
       def src_attribute
